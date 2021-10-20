@@ -1,9 +1,10 @@
-def get_description(name,price_zl,price_gr):return f'Price of {name} is {price_zl}.{price_gr}'
-def print_description(name,price_zl,price_gr): 
-    description = get_description(name,price_zl,price_gr)
+
+def get_description(name,price):return f'Price of {name} is {price//100}.{price%100}'
+def print_description(name,price): 
+    description = get_description(name,price)
     print (description)
 
 
 
-print_description("banana", 1, 42)
-
+print_description("banana", 434)
+print_description("banana", 200)
