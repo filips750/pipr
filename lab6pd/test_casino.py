@@ -8,6 +8,7 @@ from casino_exceptions import (
     DeletePlayerError
 )
 
+
 def test_roll_dices(monkeypatch: MonkeyPatch):
     player = Player('Bartek')
 

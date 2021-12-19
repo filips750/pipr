@@ -76,7 +76,7 @@ class Casino:
                 raise DeletePlayerError()
 
 
-class Player(Casino):
+class Player:
     def __init__(self, name=None):
         """
         Class Casino. Contain attributes:
