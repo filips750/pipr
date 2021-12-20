@@ -64,6 +64,7 @@ def write_database_to_file(handle, database):
             'father_id': father_id,
             'mother_id': mother_id
         })
+    handle.write('\n')
 
 
 def write_ancestors_tree_yaml(handle, database, person):
