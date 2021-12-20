@@ -1,5 +1,7 @@
 from classes import Database, Person
 from classes_io import (
+    InvalidPersonError,
+    MalformedPersonData,
     read_database_from_file,
     write_database_to_file,
     write_ancestors_tree_yaml,
@@ -146,4 +148,29 @@ def test_read_from_json():
     database = Database()
     read_from_json(handle, database)
     assert len(database._people) == 4
+    assert database.get_person_by_id('8')._name == 'Karol Kowalski'
+    assert database.get_person_by_id('8').father() == database.get_person_by_id('3')
 
+
+def test_json_error():
+    data = """[
+  {
+    "id": "8",
+    "name": "Karol Kowalski",
+    "birth_date": "2003-11-30",
+    "father_id": "3",
+    "mother_id": "4"
+  },
+  {
+    "id": "9",
+    "name": "Karolina Kowalska",
+    "birth_date": "2005-11-22",
+    "father_id": "3",
+    "mother_id": "4"
+  }
+]
+"""
+    with pytest.raises(InvalidPersonError):
+        handle = StringIO(data)
+        database = Database()
+        read_from_json(handle, database)
