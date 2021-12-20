@@ -85,8 +85,7 @@ def test_write_database_to_file():
     person3 = Person("3", "Adam Kowalski", "1984-03-03", person1, person2)
 
     write_database_to_file(handle, Database([person1, person2, person3]))
-    x = handle.getvalue().splitlines()
-    assert x == [
+    assert handle.getvalue().splitlines() == [
         "id,name,birth_date,father_id,mother_id",
         "1,Jan Kowalski,1960-06-01,,",
         "2,Anna Wiśniewska,1962-01-06,,",
