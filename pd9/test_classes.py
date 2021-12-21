@@ -1,6 +1,7 @@
-from classes import Person, Database
-
+from classes import JsonDataError, Person, Database, NoPersonWithSuchId
+from io import StringIO
 from datetime import date
+import pytest
 
 
 def test_person_create_without_family():
@@ -102,3 +103,91 @@ def test_database_add_person():
     assert len(database.people()) == 3
     assert person in database.people()
     assert database.get_person_by_id("3") is person
+
+
+def test_read_from_json():
+    data = """[
+  {
+    "id": "4",
+    "name": "Jacek Stary",
+    "birth_date": "1830-11-22",
+    "father_id": "",
+    "mother_id": ""
+  },
+  {
+    "id": "3",
+    "name": "Magda Baranowicka",
+    "birth_date": "1980-11-30",
+    "father_id": "",
+    "mother_id": ""
+  },
+  {
+    "id": "8",
+    "name": "Karol Kowalski",
+    "birth_date": "2003-11-30",
+    "father_id": "3",
+    "mother_id": "4"
+  },
+  {
+    "id": "9",
+    "name": "Karolina Kowalska",
+    "birth_date": "2005-11-22",
+    "father_id": "3",
+    "mother_id": "4"
+  },
+  {
+    "id": "10",
+    "name": "Karoliniak Kowalski",
+    "birth_date": "2005-12-22",
+    "father_id": "3",
+    "mother_id": "4"
+  }
+]"""
+    handle = StringIO(data)
+    database = Database()
+    database.read_from_json(handle)
+    assert len(database._people) == 5
+    assert database.get_person_by_id('8')._name == 'Karol Kowalski'
+    assert database.get_person_by_id('8').father() is database.get_person_by_id('3')
+    assert database.get_person_by_id('10').oldest_sibling() is database.get_person_by_id('8')
+
+
+def test_json_error_wrong_id():
+    data = """[
+  {
+    "id": "8",
+    "name": "Karol Kowalski",
+    "birth_date": "2003-11-30",
+    "father_id": "3",
+    "mother_id": "4"
+  },
+  {
+    "id": "9",
+    "name": "Karolina Kowalska",
+    "birth_date": "2005-11-22",
+    "father_id": "3",
+    "mother_id": "4"
+  }
+]
+"""
+    with pytest.raises(NoPersonWithSuchId):
+        handle = StringIO(data)
+        database = Database()
+        database.read_from_json(handle)
+
+
+def test_json_error_wrong_data():
+    data = """[
+  {
+    "id": "8",
+    "namess": "Karol Kowalski",
+    "birth_date": "2003-11-30",
+    "father_id": "",
+    "mother_id": ""
+}
+]
+"""
+    with pytest.raises(JsonDataError):
+        handle = StringIO(data)
+        database = Database()
+        database.read_from_json(handle)

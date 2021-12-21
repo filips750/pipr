@@ -1,4 +1,21 @@
 import datetime
+import json
+
+
+class InvalidPersonError(Exception):
+    pass
+
+
+class MalformedPersonData(Exception):
+    pass
+
+
+class NoPersonWithSuchId(Exception):
+    pass
+
+
+class JsonDataError(Exception):
+    pass
 
 
 class Person:
@@ -28,10 +45,7 @@ class Person:
         self._children.append(kid)
 
     def id(self):
-        if self is None:
-            return None
-        else:
-            return self._id
+        return self._id
 
     def name(self):
         return self._name
@@ -78,13 +92,13 @@ class Database:
     def add_person(self, person_to_add):
         self._people.append(person_to_add)
 
-    def get_person_by_id(self, id=None):
+    def get_person_by_id(self, id):
         if id is None or id == '':
             return None
         for person in self._people:
             if person.id() == id:
                 return person
-        raise Exception
+        raise NoPersonWithSuchId()
 
     def ancestors_tree(self, person):
         tree = {}
@@ -96,3 +110,21 @@ class Database:
         if person._mother:
             tree["mother"] = self.ancestors_tree(person._mother)
         return tree
+
+    def read_from_json(self, file_handle):
+        data = json.load(file_handle)
+        try:
+            for item in data:
+                try:
+                    id = item['id']
+                    name = item['name']
+                    birth_date = item['birth_date']
+                    father_id = item['father_id']
+                    mother_id = item['mother_id']
+                except Exception as e:
+                    raise JsonDataError from e
+                person = Person(id, name, birth_date, self.get_person_by_id(father_id), self.get_person_by_id(mother_id))
+                self._people.append(person)
+        except KeyError:
+            raise MalformedPersonData()
+        return self

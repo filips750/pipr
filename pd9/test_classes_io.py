@@ -1,7 +1,5 @@
 from classes import Database, Person
 from classes_io import (
-    InvalidPersonError,
-    MalformedPersonData,
     read_database_from_file,
     write_database_to_file,
     write_ancestors_tree_yaml,
@@ -13,7 +11,6 @@ from datetime import date
 from io import StringIO
 import pytest
 
-from classes_io import read_from_json
 
 
 def test_read_database_from_file():
@@ -110,66 +107,3 @@ def test_ancestors_to_yaml():
 
     with open('ancestors_tree.yaml', 'w') as handle:
         write_ancestors_tree_yaml(handle, database, person)
-
-
-def test_read_from_json():
-    data = """[
-  {
-    "id": "4",
-    "name": "Jacek Stary",
-    "birth_date": "1830-11-22",
-    "father_id": "",
-    "mother_id": ""
-  },
-  {
-    "id": "3",
-    "name": "Magda Baranowicka",
-    "birth_date": "1980-11-30",
-    "father_id": "",
-    "mother_id": ""
-  },
-  {
-    "id": "8",
-    "name": "Karol Kowalski",
-    "birth_date": "2003-11-30",
-    "father_id": "3",
-    "mother_id": "4"
-  },
-  {
-    "id": "9",
-    "name": "Karolina Kowalska",
-    "birth_date": "2005-11-22",
-    "father_id": "3",
-    "mother_id": "4"
-  }
-]"""
-    handle = StringIO(data)
-    database = Database()
-    read_from_json(handle, database)
-    assert len(database._people) == 4
-    assert database.get_person_by_id('8')._name == 'Karol Kowalski'
-    assert database.get_person_by_id('8').father() == database.get_person_by_id('3')
-
-
-def test_json_error():
-    data = """[
-  {
-    "id": "8",
-    "name": "Karol Kowalski",
-    "birth_date": "2003-11-30",
-    "father_id": "3",
-    "mother_id": "4"
-  },
-  {
-    "id": "9",
-    "name": "Karolina Kowalska",
-    "birth_date": "2005-11-22",
-    "father_id": "3",
-    "mother_id": "4"
-  }
-]
-"""
-    with pytest.raises(InvalidPersonError):
-        handle = StringIO(data)
-        database = Database()
-        read_from_json(handle, database)
