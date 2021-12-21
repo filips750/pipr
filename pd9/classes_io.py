@@ -2,13 +2,7 @@ from classes import Person, Database
 import csv
 import yaml
 
-
-class MalformedCSVError(Exception):
-    pass
-
-
-class CSVDataError(Exception):
-    pass
+from classes_exception import CSVDataError, MalformedCSVError
 
 
 def read_database_from_file(handle):

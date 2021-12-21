@@ -1,21 +1,11 @@
 import datetime
 import json
-
-
-class InvalidPersonError(Exception):
-    pass
-
-
-class MalformedPersonData(Exception):
-    pass
-
-
-class NoPersonWithSuchId(Exception):
-    pass
-
-
-class JsonDataError(Exception):
-    pass
+from classes_exception import (
+    MalformedPersonData,
+    NoPersonWithSuchId,
+    JsonDataError,
+    MalformedCSVError
+)
 
 
 class Person:
@@ -101,15 +91,18 @@ class Database:
         raise NoPersonWithSuchId()
 
     def ancestors_tree(self, person):
-        tree = {}
-        tree["id"] = person._id
-        tree["name"] = person._name
-        tree["birth_date"] = person._birthdate
-        if person._father:
-            tree["father"] = self.ancestors_tree(person._father)
-        if person._mother:
-            tree["mother"] = self.ancestors_tree(person._mother)
-        return tree
+        try:
+            tree = {}
+            tree["id"] = person._id
+            tree["name"] = person._name
+            tree["birth_date"] = person._birthdate
+            if person._father:
+                tree["father"] = self.ancestors_tree(person._father)
+            if person._mother:
+                tree["mother"] = self.ancestors_tree(person._mother)
+            return tree
+        except KeyError:
+            raise MalformedCSVError()
 
     def read_from_json(self, file_handle):
         data = json.load(file_handle)

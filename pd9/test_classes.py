@@ -1,7 +1,8 @@
-from classes import JsonDataError, Person, Database, NoPersonWithSuchId
+from classes import Person, Database
 from io import StringIO
 from datetime import date
 import pytest
+from classes_exception import NoPersonWithSuchId, JsonDataError
 
 
 def test_person_create_without_family():

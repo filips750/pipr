@@ -107,3 +107,21 @@ def test_ancestors_to_yaml():
 
     with open('ancestors_tree.yaml', 'w') as handle:
         write_ancestors_tree_yaml(handle, database, person)
+
+
+def test_ancestors_to_yaml_error():
+    data = """id,names,birth_date,father_id,mother_id
+1,Jan Kowalski,1960-06-01,,
+2,Anna Wiśniewska,1962-01-06,,
+3,Adam Kowalski,1984-03-03,1,2
+4,Janina Nowak,1980-12-24,,
+5,Stefan Kowalski,2004-07-28,3,4
+"""
+    handle1 = StringIO(data)
+    with pytest.raises(MalformedCSVError):
+        database = read_database_from_file(handle1)
+        person = database.get_person_by_id('5')
+        print(database.ancestors_tree(person))
+
+        with open('ancestors_tree.yaml', 'w') as handle:
+            write_ancestors_tree_yaml(handle, database, person)
