@@ -61,9 +61,10 @@ class Board():
         pawn_to_move.set_coordinates(new_coordinates)
         self._pawns_on_board.append(pawn_to_move)
 
-    def add_a_pawn(self, pawn_to_add, new_coordinates):
+    def add_a_pawn(self, player, pawn_to_add, new_coordinates):
         pawn_to_add.set_coordinates(new_coordinates)
         self._pawns_on_board.append(pawn_to_add)
+        player._pawns.remove(pawn_to_add)
         # self._pawns_out_of_board.remove(pawn_to_add)
         # to do delete added pawn from pawns_out_of_board
 
@@ -90,8 +91,7 @@ class Player():
     def add_pawns(self, number_of_pawns_to_add):
         for size in range(1, 4):
             for pawn in range(number_of_pawns_to_add):
-                # isnt this gonna make 3 the same objects? idont like this
-                self._pawns.append(Pawn(size, self._color, self))
+                self._pawns.append(Pawn(size*7, self._color, self))
 
 
 class Pawn():
@@ -125,7 +125,8 @@ def main():
     run = True
     player_one = Player('Filip', DARKOCHID3)
     player_two = Player('Janusz', BANANA)
-    mypawn = Pawn(27, (0, 0), player_one, DARKOCHID3)
+    player_one.add_pawns(3)
+    player_two.add_pawns(3)
     my_board = Board(RESOLUTION, WIN, WHITE, BLACK, 10)
     my_board.draw_a_board([player_one])
 
@@ -139,9 +140,17 @@ def main():
             xnewpos = mousepos[0]//my_board._square_size
             ynewpos = mousepos[1]//my_board._square_size
             newpos = (xnewpos, ynewpos)
-            if isclick[0]:
-                my_board.add_a_pawn(Pawn(20, DARKOCHID3, player_one), newpos)
+            if player_one._pawns:
+                mousepos = pygame.mouse.get_pos()
+                isclick = pygame.mouse.get_pressed()
+                xnewpos = mousepos[0]//my_board._square_size
+                ynewpos = mousepos[1]//my_board._square_size
+                newpos = (xnewpos, ynewpos)
+                if isclick[0]:
+                    my_board.add_a_pawn(player_one, player_one._pawns[0], newpos)
+
             my_board.draw_a_board([player_one, player_two])
+
 
         # print(mousepos + isclick)
         # pygame.draw.circle(WIN, DARKOCHID3, mousepos, 40, 40)
