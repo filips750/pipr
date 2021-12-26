@@ -26,7 +26,7 @@ class Board():
         self._color_of_board = color_of_board
         self._square_size = min(resolution[0], resolution[1])//self._size
 
-    def draw_a_board(self):
+    def draw_a_board(self, players):
         WIN.fill(WHITE)
         for line in range(self._size+1):
             pos_begin = (self._square_size*line, 0)
@@ -40,6 +40,17 @@ class Board():
         if self._pawns_on_board:
             for pawn in self._pawns_on_board:
                 self.draw_pawn(pawn)
+        height_to_blit = 0
+
+        pygame.font.init()
+        my_font = pygame.font.SysFont('Comic Sans', 20)
+
+        for player in players:
+            string_to_print = f'The score of {player._name} is {player._score}'
+            txt = my_font.render(string_to_print, True, BLACK)
+            self._surface.blit(txt, (605, height_to_blit))
+            height_to_blit += 30
+
         pygame.display.update()
 
     def check_if_won_draw_or_lost(self):
@@ -69,16 +80,26 @@ class Board():
 
 
 class Player():
-    def __init__(self, name, score=0):
+    def __init__(self, name, color, score=0):
+        # to do fix problem with data assignment
         self._name = name
         self._score = score
+        self._pawns = []
+        self._color = color
+
+    def add_pawns(self, number_of_pawns_to_add):
+        for size in range(1, 4):
+            for pawn in range(number_of_pawns_to_add):
+                # isnt this gonna make 3 the same objects? idont like this
+                self._pawns.append(Pawn(size, self._color, self))
 
 
 class Pawn():
-    def __init__(self, size, coordinates, owner, color):
+    def __init__(self, size, color, owner, coordinates=None):
         self._size = size
         self._color = color
-        self._coordinates = coordinates
+        if coordinates:
+            self._coordinates = coordinates
         self._owner = owner
 
     def size(self):
@@ -102,26 +123,26 @@ def main():
     draw_window()
     # to do update window every click
     run = True
-    player_one = Player('Filip')
+    player_one = Player('Filip', DARKOCHID3)
+    player_two = Player('Janusz', BANANA)
     mypawn = Pawn(27, (0, 0), player_one, DARKOCHID3)
     my_board = Board(RESOLUTION, WIN, WHITE, BLACK, 10)
-    my_board.draw_a_board()
+    my_board.draw_a_board([player_one])
 
     while run:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
+            # remember about situation when something gets off the board
+            mousepos = pygame.mouse.get_pos()
+            isclick = pygame.mouse.get_pressed()
+            xnewpos = mousepos[0]//my_board._square_size
+            ynewpos = mousepos[1]//my_board._square_size
+            newpos = (xnewpos, ynewpos)
+            if isclick[0]:
+                my_board.add_a_pawn(Pawn(20, DARKOCHID3, player_one), newpos)
+            my_board.draw_a_board([player_one, player_two])
 
-        # pygame.draw.circle(WIN, BANANA, (450, 300), 100, 80)
-        # pygame.draw.circle(WIN, DARKOCHID3, (50, 50), 40, 40)
-        mousepos = pygame.mouse.get_pos()
-        isclick = pygame.mouse.get_pressed()
-        xnewpos = mousepos[0]//my_board._square_size
-        ynewpos = mousepos[1]//my_board._square_size
-        newpos = (xnewpos, ynewpos)
-        if isclick[0]:
-            my_board.add_a_pawn(Pawn(20, newpos, player_one, BANANA), newpos)
-        my_board.draw_a_board()
         # print(mousepos + isclick)
         # pygame.draw.circle(WIN, DARKOCHID3, mousepos, 40, 40)
         pygame.display.update()
