@@ -122,7 +122,7 @@ def main():
         if isclick[0]:
             my_board.add_a_pawn(Pawn(20, newpos, player_one, BANANA), newpos)
         my_board.draw_a_board()
-        print(mousepos + isclick)
+        # print(mousepos + isclick)
         # pygame.draw.circle(WIN, DARKOCHID3, mousepos, 40, 40)
         pygame.display.update()
     pygame.quit()
