@@ -16,7 +16,7 @@ pygame.draw.circle(WIN, BANANA, (450, 300), 20)
 
 
 class Board():
-    def __init__(self, resolution, surface, color, color_of_board, size=3):
+    def __init__(self, resolution, surface, color, color_of_board, players, size=3):
         self._resolution = resolution
         self._size = size
         self._pawns_on_board = []
@@ -24,9 +24,10 @@ class Board():
         self._surface = surface
         self._color = color
         self._color_of_board = color_of_board
+        self._players = players
         self._square_size = min(resolution[0], resolution[1])//self._size
 
-    def draw_a_board(self, players):
+    def draw_a_board(self):
         WIN.fill(WHITE)
         for line in range(1, self._size):
             pos_begin = (self._square_size*line, 0)
@@ -45,7 +46,7 @@ class Board():
         pygame.font.init()
         my_font = pygame.font.SysFont('Comic Sans', 20)
 
-        for player in players:
+        for player in self._players:
             string_to_print = f'The score of {player._name} is {player._score}'
             txt = my_font.render(string_to_print, True, BLACK)
             self._surface.blit(txt, (605, height_to_blit))
@@ -53,8 +54,16 @@ class Board():
 
         pygame.display.update()
 
-    def check_if_won_draw_or_lost(self):
-        pass
+    def check_if_won(self):
+        currently_check = 0
+        for x_axis in range(self._size):
+            for y_axis in range(self._size):
+                pawn = self.get_biggest_pawn_by_coords(x_axis,y_axis)
+                if pawn:
+                    if currently_check == pawn:
+                        pass # TO DO!!!!! WENT SLEP
+
+
 
     def move_a_pawn(self, pawn_to_move, new_coordinates):
         self._pawns_on_board.remove(pawn_to_move)
@@ -68,8 +77,17 @@ class Board():
         # self._pawns_out_of_board.remove(pawn_to_add)
         # to do delete added pawn from pawns_out_of_board
 
-    def pawns_on_board(self):
-        return self._pawns_on_board
+    def get_biggest_pawn_by_coords(self, coords):
+        possible_pawns = []
+        for pawn in self._pawns_on_board:
+            if pawn._coordinates == coords:
+                possible_pawns.append(pawn)
+        max_size = 0
+        for pawn in possible_pawns:
+            max_size = max(max_size, pawn._size)
+        for pawn in possible_pawns:
+            if max_size == pawn._size:
+                return pawn
 
     def pawns_out_of_board(self):
         return self._pawns_out_of_board
@@ -127,35 +145,33 @@ def main():
     player_two = Player('Janusz', BANANA)
     player_one.add_pawns(3)
     player_two.add_pawns(3)
-    my_board = Board(RESOLUTION, WIN, WHITE, BLACK, 10)
-    my_board.draw_a_board([player_one])
-
+    my_board = Board(RESOLUTION, WIN, WHITE, BLACK, [player_one, player_two], 10)
+    my_board.draw_a_board()
+    turn = 0
     while run:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
             # remember about situation when something gets off the board
-            turn = 0
             mousepos = pygame.mouse.get_pos()
             isclick = pygame.mouse.get_pressed()
             xnewpos = mousepos[0]//my_board._square_size
             ynewpos = mousepos[1]//my_board._square_size
             newpos = (xnewpos, ynewpos)
-            if player_one._pawns:
+            if my_board._players[turn]._pawns:
                 mousepos = pygame.mouse.get_pos()
                 isclick = pygame.mouse.get_pressed()
                 xnewpos = mousepos[0]//my_board._square_size
                 ynewpos = mousepos[1]//my_board._square_size
                 newpos = (xnewpos, ynewpos)
                 if isclick[0]:
-                    my_board.add_a_pawn(player_one, player_one._pawns[0], newpos)
+                    my_board.add_a_pawn(my_board._players[turn], my_board._players[turn]._pawns[0], newpos)
                     turn += 1
-
-            my_board.draw_a_board([player_one, player_two])
-
+            turn = turn % len(my_board._players)
+            my_board.check_if_won_or_lost()
+            my_board.draw_a_board()
 
         # print(mousepos + isclick)
-        # pygame.draw.circle(WIN, DARKOCHID3, mousepos, 40, 40)
         pygame.display.update()
     pygame.quit()
 
