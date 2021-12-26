@@ -28,11 +28,11 @@ class Board():
 
     def draw_a_board(self, players):
         WIN.fill(WHITE)
-        for line in range(self._size+1):
+        for line in range(1, self._size):
             pos_begin = (self._square_size*line, 0)
             pos_end = (self._square_size*line, self._resolution[0])
             pygame.draw.line(self._surface, self._color_of_board, pos_begin, pos_end, WIDTHOFBOARD)
-        for line in range(self._size+1):
+        for line in range(1, self._size):
             pos_begin = (0, self._square_size*line)
             pos_end = (self._resolution[1], self._square_size*line)
             pygame.draw.line(self._surface, self._color_of_board, pos_begin, pos_end, WIDTHOFBOARD)
@@ -135,6 +135,7 @@ def main():
             if event.type == pygame.QUIT:
                 run = False
             # remember about situation when something gets off the board
+            turn = 0
             mousepos = pygame.mouse.get_pos()
             isclick = pygame.mouse.get_pressed()
             xnewpos = mousepos[0]//my_board._square_size
@@ -148,6 +149,7 @@ def main():
                 newpos = (xnewpos, ynewpos)
                 if isclick[0]:
                     my_board.add_a_pawn(player_one, player_one._pawns[0], newpos)
+                    turn += 1
 
             my_board.draw_a_board([player_one, player_two])
 
