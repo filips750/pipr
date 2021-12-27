@@ -6,7 +6,7 @@ BLACK = (0, 0, 0)
 BANANA = (227, 207, 87)
 DARKOCHID3 = (154, 50, 205)
 WIDTHOFBOARD = 5
-RESOLUTION = (900, 600)
+RESOLUTION = (1100, 600)
 
 WIN = pygame.display.set_mode(RESOLUTION)
 pygame.display.set_caption('Gobblet Gobblers')
@@ -27,7 +27,7 @@ class Board():
         self._players = players
         self._square_size = min(resolution[0], resolution[1])//self._size
 
-    def draw_a_board(self):
+    def draw_a_board(self, turn=0):
         WIN.fill(WHITE)
         for line in range(1, self._size):
             pos_begin = (self._square_size*line, 0)
@@ -51,7 +51,24 @@ class Board():
             txt = my_font.render(string_to_print, True, BLACK)
             self._surface.blit(txt, (605, height_to_blit))
             height_to_blit += 30
-
+        string_to_print = f"It's {self._players[turn]._name} move"
+        height_to_blit += 30
+        txt = my_font.render(string_to_print, True, BLACK)
+        self._surface.blit(txt, (605, height_to_blit))
+        height_to_blit += 90
+        for pawn in self._players[turn]._pawns:
+            if pawn._size == 10:
+                new_coordinates = (620, height_to_blit)
+                pawn.set_coordinates(new_coordinates)
+                self.draw_pawn_by_coords(pawn)
+            if pawn._size == 20:
+                new_coordinates = (700, height_to_blit)
+                pawn.set_coordinates(new_coordinates)
+                self.draw_pawn_by_coords(pawn)
+            if pawn._size == 30:
+                new_coordinates = (780, height_to_blit)
+                pawn.set_coordinates(new_coordinates)
+                self.draw_pawn_by_coords(pawn)
         pygame.display.update()
 
     def check_if_won(self, number_in_row_to_win):
@@ -67,6 +84,8 @@ class Board():
                             return pawn._owner
                     else:
                         currently_check = pawn._owner
+                        number_in_row = 1
+
                 else:
                     currently_check = None
 
@@ -83,6 +102,7 @@ class Board():
                             return pawn._owner
                     else:
                         currently_check = pawn._owner
+                        number_in_row = 1
                 else:
                     currently_check = None
 
@@ -98,23 +118,25 @@ class Board():
                         return pawn._owner
                 else:
                     currently_check = pawn._owner
+                    number_in_row = 1
             else:
                 currently_check = None
 
         currently_check = None
         number_in_row = 1
 
-        for xy_axis in range(self._size, 0, -1):
-            pawn = self.get_biggest_pawn_by_coords((xy_axis, xy_axis))
+        for xy_axis in range(self._size):
+            pawn = self.get_biggest_pawn_by_coords((self._size-xy_axis-1, xy_axis))
             if pawn:
                 if currently_check == pawn._owner:
                     number_in_row += 1
                     if number_in_row_to_win == number_in_row:
                         return pawn._owner
-                    else:
-                        currently_check = pawn._owner
                 else:
-                    currently_check = None
+                    currently_check = pawn._owner
+                    number_in_row = 1
+            else:
+                currently_check = None
 
 
     def move_a_pawn(self, pawn_to_move, new_coordinates):
@@ -159,6 +181,10 @@ class Board():
         y = (pawn._coordinates[1]*self._square_size)+self._square_size//2
         pygame.draw.circle(WIN, pawn._color, (x, y), pawn._size, pawn._size)
 
+    def draw_pawn_by_coords(self, pawn):
+        x = pawn._coordinates[0]
+        y = pawn._coordinates[1]
+        pygame.draw.circle(WIN, pawn._color, (x, y), pawn._size, pawn._size)
 
 class Player():
     def __init__(self, name, color, score=0):
@@ -171,7 +197,7 @@ class Player():
     def add_pawns(self, number_of_pawns_to_add):
         for size in range(1, 4):
             for pawn in range(number_of_pawns_to_add):
-                self._pawns.append(Pawn(size*7, self._color, self))
+                self._pawns.append(Pawn(size*10, self._color, self))
 
 
 class Pawn():
@@ -204,10 +230,10 @@ def main():
     # to do update window every click
     run = True
     player_one = Player('Filip', DARKOCHID3)
-    player_two = Player('Janusz', BANANA)
+    player_two = Player('Najlepszy ziomek', BANANA)
     player_one.add_pawns(3)
     player_two.add_pawns(3)
-    my_board = Board(RESOLUTION, WIN, WHITE, BLACK, [player_one, player_two], 4)
+    my_board = Board(RESOLUTION, WIN, WHITE, BLACK, [player_one, player_two], 3)
     my_board.draw_a_board()
     turn = 0
     while run:
@@ -226,14 +252,14 @@ def main():
                 xnewpos = mousepos[0]//my_board._square_size
                 ynewpos = mousepos[1]//my_board._square_size
                 newpos = (xnewpos, ynewpos)
-                if isclick[0]:
+                if isclick[0] and xnewpos < my_board._size and ynewpos < my_board._size:
                     my_board.add_a_pawn(my_board._players[turn], my_board._players[turn]._pawns[0], newpos)
                     turn += 1
             turn = turn % len(my_board._players)
             winner = my_board.check_if_won(3)
             if winner:
                 winner._score += 1
-            my_board.draw_a_board()
+            my_board.draw_a_board(turn)
 
         # print(mousepos + isclick)
         pygame.display.update()
