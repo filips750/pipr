@@ -54,15 +54,67 @@ class Board():
 
         pygame.display.update()
 
-    def check_if_won(self):
-        currently_check = 0
+    def check_if_won(self, number_in_row_to_win):
+        currently_check = None
+        number_in_row = 1
         for x_axis in range(self._size):
             for y_axis in range(self._size):
-                pawn = self.get_biggest_pawn_by_coords(x_axis,y_axis)
+                pawn = self.get_biggest_pawn_by_coords((x_axis, y_axis))
                 if pawn:
-                    if currently_check == pawn:
-                        pass # TO DO!!!!! WENT SLEP
+                    if currently_check == pawn._owner:
+                        number_in_row += 1
+                        if number_in_row_to_win == number_in_row:
+                            return pawn._owner
+                    else:
+                        currently_check = pawn._owner
+                else:
+                    currently_check = None
 
+        currently_check = None
+        number_in_row = 1
+
+        for y_axis in range(self._size):
+            for x_axis in range(self._size):
+                pawn = self.get_biggest_pawn_by_coords((x_axis, y_axis))
+                if pawn:
+                    if currently_check == pawn._owner:
+                        number_in_row += 1
+                        if number_in_row_to_win == number_in_row:
+                            return pawn._owner
+                    else:
+                        currently_check = pawn._owner
+                else:
+                    currently_check = None
+
+        currently_check = None
+        number_in_row = 1
+
+        for xy_axis in range(self._size):
+            pawn = self.get_biggest_pawn_by_coords((x_axis, y_axis))
+            if pawn:
+                if currently_check == pawn._owner:
+                    number_in_row += 1
+                    if number_in_row_to_win == number_in_row:
+                        return pawn._owner
+                else:
+                    currently_check = pawn._owner
+            else:
+                currently_check = None
+
+        currently_check = None
+        number_in_row = 1
+
+        for xy_axis in range(self._size, 0, -1):
+            pawn = self.get_biggest_pawn_by_coords((xy_axis, xy_axis))
+            if pawn:
+                if currently_check == pawn._owner:
+                    number_in_row += 1
+                    if number_in_row_to_win == number_in_row:
+                        return pawn._owner
+                    else:
+                        currently_check = pawn._owner
+                else:
+                    currently_check = None
 
 
     def move_a_pawn(self, pawn_to_move, new_coordinates):
@@ -71,11 +123,21 @@ class Board():
         self._pawns_on_board.append(pawn_to_move)
 
     def add_a_pawn(self, player, pawn_to_add, new_coordinates):
-        pawn_to_add.set_coordinates(new_coordinates)
-        self._pawns_on_board.append(pawn_to_add)
-        player._pawns.remove(pawn_to_add)
+        if self.compare_size_of_pawns(pawn_to_add, new_coordinates):
+            pawn_to_add.set_coordinates(new_coordinates)
+            self._pawns_on_board.append(pawn_to_add)
+            player._pawns.remove(pawn_to_add)
         # self._pawns_out_of_board.remove(pawn_to_add)
         # to do delete added pawn from pawns_out_of_board
+
+    def compare_size_of_pawns(self, pawn_to_add, new_coordinates):
+        pawn = self.get_biggest_pawn_by_coords(new_coordinates)
+        if pawn is None:
+            return True
+        if pawn_to_add._size > pawn._size:
+            return True
+        else:
+            return False
 
     def get_biggest_pawn_by_coords(self, coords):
         possible_pawns = []
@@ -145,7 +207,7 @@ def main():
     player_two = Player('Janusz', BANANA)
     player_one.add_pawns(3)
     player_two.add_pawns(3)
-    my_board = Board(RESOLUTION, WIN, WHITE, BLACK, [player_one, player_two], 10)
+    my_board = Board(RESOLUTION, WIN, WHITE, BLACK, [player_one, player_two], 4)
     my_board.draw_a_board()
     turn = 0
     while run:
@@ -168,7 +230,9 @@ def main():
                     my_board.add_a_pawn(my_board._players[turn], my_board._players[turn]._pawns[0], newpos)
                     turn += 1
             turn = turn % len(my_board._players)
-            my_board.check_if_won_or_lost()
+            winner = my_board.check_if_won(3)
+            if winner:
+                winner._score += 1
             my_board.draw_a_board()
 
         # print(mousepos + isclick)
