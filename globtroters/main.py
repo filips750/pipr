@@ -138,7 +138,6 @@ class Board():
             else:
                 currently_check = None
 
-
     def move_a_pawn(self, pawn_to_move, new_coordinates):
         self._pawns_on_board.remove(pawn_to_move)
         pawn_to_move.set_coordinates(new_coordinates)
