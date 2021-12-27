@@ -25,7 +25,8 @@ class Board():
         self._color = color
         self._color_of_board = color_of_board
         self._players = players
-        self._square_size = min(resolution[0], resolution[1])//self._size
+        self._board_size = min(resolution[0], resolution[1])
+        self._square_size = self._board_size//self._size
 
     def draw_a_board(self, turn=0):
         WIN.fill(WHITE)
@@ -58,20 +59,21 @@ class Board():
         height_to_blit += 90
         for pawn in self._players[turn]._pawns:
             if pawn._size == 10:
-                new_coordinates = (620, height_to_blit)
+                new_coordinates = (self._board_size + 40, height_to_blit)
                 pawn.set_coordinates(new_coordinates)
                 self.draw_pawn_by_coords(pawn)
             if pawn._size == 20:
-                new_coordinates = (700, height_to_blit)
+                new_coordinates = (self._board_size + 120, height_to_blit)
                 pawn.set_coordinates(new_coordinates)
                 self.draw_pawn_by_coords(pawn)
             if pawn._size == 30:
-                new_coordinates = (780, height_to_blit)
+                new_coordinates = (self._board_size + 200, height_to_blit)
                 pawn.set_coordinates(new_coordinates)
                 self.draw_pawn_by_coords(pawn)
         pygame.display.update()
 
     def check_if_won(self, number_in_row_to_win):
+        # would change it, don't like it
         currently_check = None
         number_in_row = 1
         for x_axis in range(self._size):
@@ -160,6 +162,14 @@ class Board():
         else:
             return False
 
+    def get_pawn_by_size(self, size, turn):
+        for pawn in self._players[turn]._pawns:
+            if pawn._size == size:
+                self._players[turn]._pawns.remove(pawn)
+                return pawn
+        else:
+            return None
+
     def get_biggest_pawn_by_coords(self, coords):
         possible_pawns = []
         for pawn in self._pawns_on_board:
@@ -184,6 +194,25 @@ class Board():
         x = pawn._coordinates[0]
         y = pawn._coordinates[1]
         pygame.draw.circle(WIN, pawn._color, (x, y), pawn._size, pawn._size)
+
+    def pick_a_pawn(self, coords, isclick, turn):
+        xnewpos = coords[0]//self._square_size
+        ynewpos = coords[1]//self._square_size
+        newpos = (xnewpos, ynewpos)
+        if coords[0] <= self._board_size:
+            if isclick[0]:
+                pawn = self.get_biggest_pawn_by_coords(newpos)
+                if pawn:
+                    self._pawns_on_board.remove(pawn)
+                    return pawn
+        if coords[0] > self._size:
+            if isclick[0]:
+                if coords[0] < self._board_size + 40:
+                    return self.get_pawn_by_size(10, turn)
+                elif coords[0] < self._board_size + 120:
+                    return self.get_pawn_by_size(20, turn)
+                elif coords[0] < self._board_size + 200:
+                    return self.get_pawn_by_size(30, turn)
 
 class Player():
     def __init__(self, name, color, score=0):
@@ -232,28 +261,27 @@ def main():
     player_two = Player('Najlepszy ziomek', BANANA)
     player_one.add_pawns(3)
     player_two.add_pawns(3)
-    my_board = Board(RESOLUTION, WIN, WHITE, BLACK, [player_one, player_two], 3)
+    my_board = Board(RESOLUTION, WIN, WHITE, BLACK, [player_one, player_two], 10)
     my_board.draw_a_board()
     turn = 0
     while run:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
-            # remember about situation when something gets off the board
             mousepos = pygame.mouse.get_pos()
             isclick = pygame.mouse.get_pressed()
             xnewpos = mousepos[0]//my_board._square_size
             ynewpos = mousepos[1]//my_board._square_size
             newpos = (xnewpos, ynewpos)
-            if my_board._players[turn]._pawns:
-                mousepos = pygame.mouse.get_pos()
-                isclick = pygame.mouse.get_pressed()
-                xnewpos = mousepos[0]//my_board._square_size
-                ynewpos = mousepos[1]//my_board._square_size
-                newpos = (xnewpos, ynewpos)
-                if isclick[0] and xnewpos < my_board._size and ynewpos < my_board._size:
-                    my_board.add_a_pawn(my_board._players[turn], my_board._players[turn]._pawns[0], newpos)
-                    turn += 1
+            mousepos = pygame.mouse.get_pos()
+            isclick = pygame.mouse.get_pressed()
+            xnewpos = mousepos[0]//my_board._square_size
+            ynewpos = mousepos[1]//my_board._square_size
+            newpos = (xnewpos, ynewpos)
+            my_board.pick_a_pawn(mousepos, isclick, turn)
+                # if isclick[0] and xnewpos < my_board._size and ynewpos < my_board._size:
+                #     my_board.add_a_pawn(my_board._players[turn], my_board._players[turn]._pawns[0], newpos)
+                #     turn += 1
             turn = turn % len(my_board._players)
             winner = my_board.check_if_won(3)
             if winner:
