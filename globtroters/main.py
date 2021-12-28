@@ -196,24 +196,22 @@ class Board():
         y = pawn._coordinates[1]
         pygame.draw.circle(WIN, pawn._color, (x, y), pawn._size, pawn._size)
 
-    def pick_a_pawn(self, coords, isclick, turn):
+    def pick_a_pawn(self, coords, turn):
         xnewpos = coords[0]//self._square_size
         ynewpos = coords[1]//self._square_size
         newpos = (xnewpos, ynewpos)
         if coords[0] <= self._board_size:
-            if isclick[0]:
-                pawn = self.get_biggest_pawn_by_coords(newpos)
-                if pawn:
-                    self._pawns_on_board.remove(pawn)
-                    return pawn
+            pawn = self.get_biggest_pawn_by_coords(newpos)
+            if pawn:
+                self._pawns_on_board.remove(pawn)
+                return pawn
         if coords[0] > self._size and self._height_blit-30 < coords[1] < self._height_blit+30:
-            if isclick[0]:
-                if self._board_size < coords[0] < self._board_size + 50:
-                    return self.get_pawn_by_size(10, turn)
-                elif self._board_size + 50 < coords[0] < self._board_size + 140:
-                    return self.get_pawn_by_size(20, turn)
-                elif self._board_size + 140 < coords[0] < self._board_size + 230:
-                    return self.get_pawn_by_size(30, turn)
+            if self._board_size < coords[0] < self._board_size + 50:
+                return self.get_pawn_by_size(10, turn)
+            elif self._board_size + 50 < coords[0] < self._board_size + 140:
+                return self.get_pawn_by_size(20, turn)
+            elif self._board_size + 140 < coords[0] < self._board_size + 230:
+                return self.get_pawn_by_size(30, turn)
         else:
             return None
 
@@ -285,8 +283,9 @@ def main():
                 if my_board.add_a_pawn(my_board._players[turn], picked_pawn, newpos):
                     turn += 1
                     picked_pawn = None
-            if isclick[0] and mousepos[0] > my_board._board_size:
-                picked_pawn = my_board.pick_a_pawn(mousepos, isclick, turn)
+                    continue
+            if isclick[0]:
+                picked_pawn = my_board.pick_a_pawn(mousepos, turn)
             turn = turn % len(my_board._players)
             winner = my_board.check_if_won(3)
             if winner:
