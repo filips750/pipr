@@ -27,6 +27,7 @@ class Board():
         self._players = players
         self._board_size = min(resolution[0], resolution[1])
         self._square_size = self._board_size//self._size
+        self._height_blit = 5
 
     def draw_a_board(self, turn=0):
         WIN.fill(WHITE)
@@ -42,7 +43,7 @@ class Board():
         if self._pawns_on_board:
             for pawn in self._pawns_on_board:
                 self.draw_pawn(pawn)
-        height_to_blit = 0
+        self._height_blit = 0
 
         pygame.font.init()
         my_font = pygame.font.SysFont('Comic Sans', 20)
@@ -50,24 +51,24 @@ class Board():
         for player in self._players:
             string_to_print = f'The score of {player._name} is {player._score}'
             txt = my_font.render(string_to_print, True, BLACK)
-            self._surface.blit(txt, (605, height_to_blit))
-            height_to_blit += 30
+            self._surface.blit(txt, (605, self._height_blit))
+            self._height_blit += 30
         string_to_print = f"It's {self._players[turn]._name} move"
-        height_to_blit += 30
+        self._height_blit += 30
         txt = my_font.render(string_to_print, True, BLACK)
-        self._surface.blit(txt, (605, height_to_blit))
-        height_to_blit += 90
+        self._surface.blit(txt, (605, self._height_blit))
+        self._height_blit += 90
         for pawn in self._players[turn]._pawns:
             if pawn._size == 10:
-                new_coordinates = (self._board_size + 40, height_to_blit)
+                new_coordinates = (self._board_size + 40, self._height_blit)
                 pawn.set_coordinates(new_coordinates)
                 self.draw_pawn_by_coords(pawn)
             if pawn._size == 20:
-                new_coordinates = (self._board_size + 120, height_to_blit)
+                new_coordinates = (self._board_size + 120, self._height_blit)
                 pawn.set_coordinates(new_coordinates)
                 self.draw_pawn_by_coords(pawn)
             if pawn._size == 30:
-                new_coordinates = (self._board_size + 200, height_to_blit)
+                new_coordinates = (self._board_size + 200, self._height_blit)
                 pawn.set_coordinates(new_coordinates)
                 self.draw_pawn_by_coords(pawn)
         pygame.display.update()
@@ -205,7 +206,7 @@ class Board():
                 if pawn:
                     self._pawns_on_board.remove(pawn)
                     return pawn
-        if coords[0] > self._size:
+        if coords[0] > self._size and self._height_blit-30 < coords[1] < self._height_blit+30:
             if isclick[0]:
                 if self._board_size < coords[0] < self._board_size + 50:
                     return self.get_pawn_by_size(10, turn)
@@ -213,6 +214,8 @@ class Board():
                     return self.get_pawn_by_size(20, turn)
                 elif self._board_size + 140 < coords[0] < self._board_size + 230:
                     return self.get_pawn_by_size(30, turn)
+        else:
+            return None
 
 class Player():
     def __init__(self, name, color, score=0):
