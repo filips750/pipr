@@ -5,8 +5,9 @@ WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 BANANA = (227, 207, 87)
 DARKOCHID3 = (154, 50, 205)
+RED = (255, 0, 0)
 WIDTHOFBOARD = 5
-RESOLUTION = (1100, 600)
+RESOLUTION = (1100, 500)
 
 WIN = pygame.display.set_mode(RESOLUTION)
 pygame.display.set_caption('Gobblet Gobblers')
@@ -20,7 +21,6 @@ class Board():
         self._resolution = resolution
         self._size = size
         self._pawns_on_board = []
-        self._pawns_out_of_board = []
         self._surface = surface
         self._color = color
         self._color_of_board = color_of_board
@@ -142,13 +142,18 @@ class Board():
                 currently_check = None
 
     def move_a_pawn(self, pawn_to_move, new_coordinates):
-        pawn_to_move.set_coordinates(new_coordinates)
+        if pawn_to_move and new_coordinates[0] < self._size:
+            if self.compare_size_of_pawns(pawn_to_move, new_coordinates):
+                pawn_to_move.set_coordinates(new_coordinates)
+                self._pawns_on_board.append(pawn_to_move)
+                return True
 
     def add_a_pawn(self, player, pawn_to_add, new_coordinates):
         if pawn_to_add and new_coordinates[0] < self._size:
             if self.compare_size_of_pawns(pawn_to_add, new_coordinates):
                 pawn_to_add.set_coordinates(new_coordinates)
                 self._pawns_on_board.append(pawn_to_add)
+                player._pawns.remove(pawn_to_add)
                 return True
                 # player._pawns.remove(pawn_to_add)
         # self._pawns_out_of_board.remove(pawn_to_add)
@@ -166,7 +171,6 @@ class Board():
     def get_pawn_by_size(self, size, turn):
         for pawn in self._players[turn]._pawns:
             if pawn._size == size:
-                self._players[turn]._pawns.remove(pawn)
                 return pawn
         else:
             return None
@@ -260,11 +264,14 @@ def main():
     run = True
     player_one = Player('Filip', DARKOCHID3)
     player_two = Player('Najlepszy ziomek', BANANA)
+    player_three = Player('Damnson', RED)
     player_one.add_pawns(3)
     player_two.add_pawns(3)
-    my_board = Board(RESOLUTION, WIN, WHITE, BLACK, [player_one, player_two], 10)
+    player_three.add_pawns(3)
+    my_board = Board(RESOLUTION, WIN, WHITE, BLACK, [player_one, player_two, player_three], 3)
     turn = 0
-    picked_pawn = None
+    picked_pawn_from_board = None
+    picked_pawn_from_set = None
     while run:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -274,25 +281,29 @@ def main():
             xnewpos = mousepos[0]//my_board._square_size
             ynewpos = mousepos[1]//my_board._square_size
             newpos = (xnewpos, ynewpos)
-            mousepos = pygame.mouse.get_pos()
-            isclick = pygame.mouse.get_pressed()
-            xnewpos = mousepos[0]//my_board._square_size
-            ynewpos = mousepos[1]//my_board._square_size
-            newpos = (xnewpos, ynewpos)
-            if picked_pawn and isclick[0]:
-                if my_board.add_a_pawn(my_board._players[turn], picked_pawn, newpos):
+            if picked_pawn_from_set and isclick[0]:
+                if my_board.add_a_pawn(my_board._players[turn], picked_pawn_from_set, newpos):
                     turn += 1
-                    picked_pawn = None
+                    picked_pawn_from_set = None
                     continue
-            if isclick[0]:
-                picked_pawn = my_board.pick_a_pawn(mousepos, turn)
+            if picked_pawn_from_board and isclick[0]:
+                if my_board.move_a_pawn(picked_pawn_from_board, newpos):
+                    turn += 1
+                    picked_pawn_from_board = None
+                    continue
+            if isclick[0] and mousepos[0] < my_board._board_size:
+                picked_pawn_from_board = my_board.pick_a_pawn(mousepos, turn)
+            if isclick[0] and mousepos[0] > my_board._board_size:
+                picked_pawn_from_set = my_board.pick_a_pawn(mousepos, turn)
             turn = turn % len(my_board._players)
             winner = my_board.check_if_won(3)
             if winner:
                 winner._score += 1
             my_board.draw_a_board(turn)
-            if picked_pawn:
-                print(picked_pawn._size)
+            if picked_pawn_from_set:
+                print(picked_pawn_from_set._size)
+            if picked_pawn_from_board:
+                print(picked_pawn_from_board._size)
 
         # print(mousepos + isclick)
         pygame.display.update()
