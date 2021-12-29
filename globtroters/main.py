@@ -219,6 +219,11 @@ class Board():
         else:
             return None
 
+    def remove_all_pawns(self):
+        self._pawns_on_board.clear()
+        for player in self._players:
+            player._pawns.clear()
+
 class Player():
     def __init__(self, name, color, score=0):
         # to do fix problem with data assignment
@@ -295,10 +300,15 @@ def main():
                 picked_pawn_from_board = my_board.pick_a_pawn(mousepos, turn)
             if isclick[0] and mousepos[0] > my_board._board_size and not picked_pawn_from_board:
                 picked_pawn_from_set = my_board.pick_a_pawn(mousepos, turn)
-            turn = turn % len(my_board._players)
             winner = my_board.check_if_won(3)
             if winner:
                 winner._score += 1
+                my_board.remove_all_pawns()
+                winner = None
+                turn += 1
+                player_one.add_pawns(3)
+                player_two.add_pawns(3)
+            turn = turn % len(my_board._players)
             my_board.draw_a_board(turn)
             if picked_pawn_from_set:
                 print(picked_pawn_from_set._size)
