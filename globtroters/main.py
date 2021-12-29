@@ -8,11 +8,11 @@ DARKOCHID3 = (154, 50, 205)
 RED = (255, 0, 0)
 WIDTHOFBOARD = 5
 RESOLUTION = (1100, 500)
+multiplied_size = 30
 
 WIN = pygame.display.set_mode(RESOLUTION)
 pygame.display.set_caption('Gobblet Gobblers')
 
-pygame.draw.circle(WIN, BANANA, (450, 300), 20)
 # pygame.display.flip()
 
 
@@ -59,22 +59,23 @@ class Board():
         self._surface.blit(txt, (self._board_size + 10, self._height_blit))
         self._height_blit += 90
         for pawn in self._players[turn]._pawns:
-            if pawn._size == 10:
-                new_coordinates = (self._board_size + 40, self._height_blit)
+            if pawn._size == multiplied_size:
+                new_coordinates = (self._board_size + 4*multiplied_size , self._height_blit)
                 pawn.set_coordinates(new_coordinates)
                 self.draw_pawn_by_coords(pawn)
-            if pawn._size == 20:
-                new_coordinates = (self._board_size + 120, self._height_blit)
+            if pawn._size == 2*multiplied_size:
+                new_coordinates = (self._board_size + 8*multiplied_size, self._height_blit)
                 pawn.set_coordinates(new_coordinates)
                 self.draw_pawn_by_coords(pawn)
-            if pawn._size == 30:
-                new_coordinates = (self._board_size + 200, self._height_blit)
+            if pawn._size == 3*multiplied_size:
+                new_coordinates = (self._board_size + 14*multiplied_size, self._height_blit)
                 pawn.set_coordinates(new_coordinates)
                 self.draw_pawn_by_coords(pawn)
         pygame.display.update()
 
     def check_if_won(self, number_in_row_to_win):
         # would change it, don't like it
+        # probably works tho
         currently_check = None
         number_in_row = 1
         for x_axis in range(self._size):
@@ -155,9 +156,6 @@ class Board():
                 self._pawns_on_board.append(pawn_to_add)
                 player._pawns.remove(pawn_to_add)
                 return True
-                # player._pawns.remove(pawn_to_add)
-        # self._pawns_out_of_board.remove(pawn_to_add)
-        # to do delete added pawn from pawns_out_of_board
 
     def compare_size_of_pawns(self, pawn_to_add, new_coordinates):
         pawn = self.get_biggest_pawn_by_coords(new_coordinates)
@@ -210,12 +208,12 @@ class Board():
                 self._pawns_on_board.remove(pawn)
                 return pawn
         if coords[0] > self._size and self._height_blit-30 < coords[1] < self._height_blit+30:
-            if self._board_size < coords[0] < self._board_size + 50:
-                return self.get_pawn_by_size(10, turn)
-            elif self._board_size + 50 < coords[0] < self._board_size + 140:
-                return self.get_pawn_by_size(20, turn)
-            elif self._board_size + 140 < coords[0] < self._board_size + 230:
-                return self.get_pawn_by_size(30, turn)
+            if self._board_size < coords[0] < self._board_size + multiplied_size*6:
+                return self.get_pawn_by_size(multiplied_size, turn)
+            elif self._board_size + multiplied_size*6 < coords[0] < self._board_size + multiplied_size*10:
+                return self.get_pawn_by_size(multiplied_size*2, turn)
+            elif self._board_size + multiplied_size*11 < coords[0] < self._board_size + multiplied_size*18:
+                return self.get_pawn_by_size(multiplied_size*3, turn)
         else:
             return None
 
@@ -223,6 +221,7 @@ class Board():
         self._pawns_on_board.clear()
         for player in self._players:
             player._pawns.clear()
+
 
 class Player():
     def __init__(self, name, color, score=0):
@@ -235,7 +234,7 @@ class Player():
     def add_pawns(self, number_of_pawns_to_add):
         for size in range(1, 4):
             for pawn in range(number_of_pawns_to_add):
-                self._pawns.append(Pawn(size*10, self._color, self))
+                self._pawns.append(Pawn(size*multiplied_size, self._color, self))
 
 
 class Pawn():
@@ -305,7 +304,6 @@ def main():
                 winner._score += 1
                 my_board.remove_all_pawns()
                 winner = None
-                turn += 1
                 player_one.add_pawns(3)
                 player_two.add_pawns(3)
             turn = turn % len(my_board._players)
