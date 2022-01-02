@@ -1,5 +1,4 @@
 import pygame
-import time
 
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
@@ -8,7 +7,7 @@ DARKOCHID3 = (154, 50, 205)
 RED = (255, 0, 0)
 WIDTHOFBOARD = 5
 RESOLUTION = (1100, 500)
-multiplied_size = 30
+multiplied_size = 24
 
 WIN = pygame.display.set_mode(RESOLUTION)
 pygame.display.set_caption('Gobblet Gobblers')
@@ -60,7 +59,7 @@ class Board():
         self._height_blit += 90
         for pawn in self._players[turn]._pawns:
             if pawn._size == multiplied_size:
-                new_coordinates = (self._board_size + 4*multiplied_size , self._height_blit)
+                new_coordinates = (self._board_size + 4*multiplied_size, self._height_blit)
                 pawn.set_coordinates(new_coordinates)
                 self.draw_pawn_by_coords(pawn)
             if pawn._size == 2*multiplied_size:
@@ -75,10 +74,10 @@ class Board():
 
     def check_if_won(self, number_in_row_to_win):
         # would change it, don't like it
-        # probably works tho
-        currently_check = None
-        number_in_row = 1
+
         for x_axis in range(self._size):
+            number_in_row = 1
+            currently_check = None
             for y_axis in range(self._size):
                 pawn = self.get_biggest_pawn_by_coords((x_axis, y_axis))
                 if pawn:
@@ -92,11 +91,11 @@ class Board():
 
                 else:
                     currently_check = None
-
-        currently_check = None
-        number_in_row = 1
+                    number_in_row = 1
 
         for y_axis in range(self._size):
+            number_in_row = 1
+            currently_check = None
             for x_axis in range(self._size):
                 pawn = self.get_biggest_pawn_by_coords((x_axis, y_axis))
                 if pawn:
@@ -109,6 +108,7 @@ class Board():
                         number_in_row = 1
                 else:
                     currently_check = None
+                    number_in_row = 1
 
         currently_check = None
         number_in_row = 1
@@ -125,6 +125,7 @@ class Board():
                     number_in_row = 1
             else:
                 currently_check = None
+                number_in_row = 1
 
         currently_check = None
         number_in_row = 1
@@ -141,6 +142,7 @@ class Board():
                     number_in_row = 1
             else:
                 currently_check = None
+                number_in_row = 1
 
     def move_a_pawn(self, pawn_to_move, new_coordinates):
         if pawn_to_move and new_coordinates[0] < self._size:
@@ -184,9 +186,6 @@ class Board():
         for pawn in possible_pawns:
             if max_size == pawn._size:
                 return pawn
-
-    def pawns_out_of_board(self):
-        return self._pawns_out_of_board
 
     def draw_pawn(self, pawn):
         x = (pawn._coordinates[0]*self._square_size)+self._square_size//2
@@ -268,10 +267,8 @@ def main():
     run = True
     player_one = Player('Filip', DARKOCHID3)
     player_two = Player('Najlepszy ziomek', BANANA)
-    player_three = Player('Damnson', RED)
-    player_one.add_pawns(3)
-    player_two.add_pawns(3)
-    player_three.add_pawns(3)
+    player_one.add_pawns(2)
+    player_two.add_pawns(2)
     my_board = Board(RESOLUTION, WIN, WHITE, BLACK, [player_one, player_two], 3)
     turn = 0
     picked_pawn_from_board = None
@@ -308,12 +305,6 @@ def main():
                 player_two.add_pawns(3)
             turn = turn % len(my_board._players)
             my_board.draw_a_board(turn)
-            if picked_pawn_from_set:
-                print(picked_pawn_from_set._size)
-            if picked_pawn_from_board:
-                print(picked_pawn_from_board._size)
-
-        # print(mousepos + isclick)
         pygame.display.update()
     pygame.quit()
 
