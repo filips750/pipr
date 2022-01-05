@@ -12,8 +12,6 @@ multiplied_size = 24
 WIN = pygame.display.set_mode(RESOLUTION)
 pygame.display.set_caption('Gobblet Gobblers')
 
-# pygame.display.flip()
-
 
 class Board():
     def __init__(self, resolution, surface, color, color_of_board, players, size=3):
@@ -27,6 +25,7 @@ class Board():
         self._board_size = min(resolution[0], resolution[1])
         self._square_size = self._board_size//self._size
         self._height_blit = 5
+        self._picked_pawn = None
 
     def draw_a_board(self, turn=0):
         WIN.fill(WHITE)
@@ -70,6 +69,17 @@ class Board():
                 new_coordinates = (self._board_size + 14*multiplied_size, self._height_blit)
                 pawn.set_coordinates(new_coordinates)
                 self.draw_pawn_by_coords(pawn)
+        if self._picked_pawn:
+            string_to_print = f"The picked pawn is {self._picked_pawn._color}, size:{self._picked_pawn._size}"
+            # to do change colors into a dictionary, then get the color name by key or value i dont rememebre
+            self._height_blit += 90
+            txt = my_font.render(string_to_print, True, BLACK)
+            self._surface.blit(txt, (self._board_size + 10, self._height_blit))
+        else:
+            string_to_print = f"No picked pawn"
+            self._height_blit += 90
+            txt = my_font.render(string_to_print, True, BLACK)
+            self._surface.blit(txt, (self._board_size + 10, self._height_blit))
         pygame.display.update()
 
     def check_if_won(self, number_in_row_to_win):
@@ -205,14 +215,21 @@ class Board():
             pawn = self.get_biggest_pawn_by_coords(newpos)
             if pawn:
                 self._pawns_on_board.remove(pawn)
+                self._picked_pawn = pawn
                 return pawn
         if coords[0] > self._size and self._height_blit-30 < coords[1] < self._height_blit+30:
             if self._board_size < coords[0] < self._board_size + multiplied_size*6:
-                return self.get_pawn_by_size(multiplied_size, turn)
+                pawn = self.get_pawn_by_size(multiplied_size, turn)
+                self._picked_pawn = pawn
+                return pawn
             elif self._board_size + multiplied_size*6 < coords[0] < self._board_size + multiplied_size*10:
-                return self.get_pawn_by_size(multiplied_size*2, turn)
+                pawn = self.get_pawn_by_size(multiplied_size, turn)
+                self._picked_pawn = pawn
+                return pawn
             elif self._board_size + multiplied_size*11 < coords[0] < self._board_size + multiplied_size*18:
-                return self.get_pawn_by_size(multiplied_size*3, turn)
+                pawn = self.get_pawn_by_size(multiplied_size, turn)
+                self._picked_pawn = pawn
+                return pawn
         else:
             return None
 
