@@ -6,7 +6,7 @@ BANANA = (227, 207, 87)
 DARKOCHID3 = (154, 50, 205)
 RED = (255, 0, 0)
 WIDTHOFBOARD = 5
-RESOLUTION = (1100, 500)
+RESOLUTION = (1920, 1000)
 multiplied_size = 24
 
 WIN = pygame.display.set_mode(RESOLUTION)
@@ -75,11 +75,13 @@ class Board():
             self._height_blit += 90
             txt = my_font.render(string_to_print, True, BLACK)
             self._surface.blit(txt, (self._board_size + 10, self._height_blit))
+            self._height_blit -= 90
         else:
             string_to_print = f"No picked pawn"
             self._height_blit += 90
             txt = my_font.render(string_to_print, True, BLACK)
             self._surface.blit(txt, (self._board_size + 10, self._height_blit))
+            self._height_blit -= 90
         pygame.display.update()
 
     def check_if_won(self, number_in_row_to_win):
@@ -159,6 +161,7 @@ class Board():
             if self.compare_size_of_pawns(pawn_to_move, new_coordinates):
                 pawn_to_move.set_coordinates(new_coordinates)
                 self._pawns_on_board.append(pawn_to_move)
+                self._picked_pawn = None
                 return True
 
     def add_a_pawn(self, player, pawn_to_add, new_coordinates):
@@ -167,6 +170,7 @@ class Board():
                 pawn_to_add.set_coordinates(new_coordinates)
                 self._pawns_on_board.append(pawn_to_add)
                 player._pawns.remove(pawn_to_add)
+                self._picked_pawn = None
                 return True
 
     def compare_size_of_pawns(self, pawn_to_add, new_coordinates):
@@ -223,11 +227,11 @@ class Board():
                 self._picked_pawn = pawn
                 return pawn
             elif self._board_size + multiplied_size*6 < coords[0] < self._board_size + multiplied_size*10:
-                pawn = self.get_pawn_by_size(multiplied_size, turn)
+                pawn = self.get_pawn_by_size(multiplied_size*2, turn)
                 self._picked_pawn = pawn
                 return pawn
             elif self._board_size + multiplied_size*11 < coords[0] < self._board_size + multiplied_size*18:
-                pawn = self.get_pawn_by_size(multiplied_size, turn)
+                pawn = self.get_pawn_by_size(multiplied_size*3, turn)
                 self._picked_pawn = pawn
                 return pawn
         else:
@@ -294,25 +298,25 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
-            mousepos = pygame.mouse.get_pos()
-            isclick = pygame.mouse.get_pressed()
-            xnewpos = mousepos[0]//my_board._square_size
-            ynewpos = mousepos[1]//my_board._square_size
-            newpos = (xnewpos, ynewpos)
-            if picked_pawn_from_set and isclick[0]:
-                if my_board.add_a_pawn(my_board._players[turn], picked_pawn_from_set, newpos):
-                    turn += 1
-                    picked_pawn_from_set = None
-                    continue
-            if picked_pawn_from_board and isclick[0]:
-                if my_board.move_a_pawn(picked_pawn_from_board, newpos):
-                    turn += 1
-                    picked_pawn_from_board = None
-                    continue
-            if isclick[0] and mousepos[0] < my_board._board_size and not (picked_pawn_from_board or picked_pawn_from_set):
-                picked_pawn_from_board = my_board.pick_a_pawn(mousepos, turn)
-            if isclick[0] and mousepos[0] > my_board._board_size and not picked_pawn_from_board:
-                picked_pawn_from_set = my_board.pick_a_pawn(mousepos, turn)
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                mousepos = pygame.mouse.get_pos()
+                xnewpos = mousepos[0]//my_board._square_size
+                ynewpos = mousepos[1]//my_board._square_size
+                newpos = (xnewpos, ynewpos)
+                if picked_pawn_from_set:
+                    if my_board.add_a_pawn(my_board._players[turn], picked_pawn_from_set, newpos):
+                        turn += 1
+                        picked_pawn_from_set = None
+                        continue
+                if picked_pawn_from_board:
+                    if my_board.move_a_pawn(picked_pawn_from_board, newpos):
+                        turn += 1
+                        picked_pawn_from_board = None
+                        continue
+                if mousepos[0] < my_board._board_size and not (picked_pawn_from_board or picked_pawn_from_set):
+                    picked_pawn_from_board = my_board.pick_a_pawn(mousepos, turn)
+                if mousepos[0] > my_board._board_size and not picked_pawn_from_board:
+                    picked_pawn_from_set = my_board.pick_a_pawn(mousepos, turn)
             winner = my_board.check_if_won(3)
             if winner:
                 winner._score += 1
