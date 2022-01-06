@@ -78,4 +78,3 @@ def test_pickmove_a_pawn():
     picked_pawn = my_board.pick_a_pawn((450, 150), 0)
     my_board.move_a_pawn(picked_pawn, (0, 2))
     assert my_board._pawns_on_board[0]._coordinates == (0, 2)
-
