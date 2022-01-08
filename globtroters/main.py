@@ -1,16 +1,28 @@
 import pygame
+import yaml
 
-WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
-BANANA = (227, 207, 87)
-DARKOCHID3 = (154, 50, 205)
-RED = (255, 0, 0)
-WIDTHOFBOARD = 5
-RESOLUTION = (900, 600)
-multiplied_size = 24
 
-WIN = pygame.display.set_mode(RESOLUTION)
-pygame.display.set_caption('Gobblet Gobblers')
+def load_and_unpack_settings_yaml(path):
+    settings = {}
+    try:
+        with open(path, 'r') as handle:
+            settings = yaml.safe_load(handle)
+    except yaml.YAMLError as exc:
+        print(exc)
+    for color in settings['colors']:
+        settings['colors'][color] = eval(settings['colors'][color])
+    settings['WIDTHOFBOARD'] = int(settings['WIDTHOFBOARD'])
+    settings['MULTIPLIEDSIZE'] = int(settings['MULTIPLIEDSIZE'])
+    settings['RESOLUTION'] = eval(settings['RESOLUTION'])
+
+    return settings['colors'], settings
+
+
+path_to_yaml = 'globtroters/config_file.yaml'
+
+colors, settings = load_and_unpack_settings_yaml(path_to_yaml)
+WIN = pygame.display.set_mode(settings['RESOLUTION'])
+# (dictionary, stream=handle, allow_unicode=True)
 
 
 class Board():
@@ -28,15 +40,15 @@ class Board():
         self._picked_pawn = None
 
     def draw_a_board(self, turn=0):
-        WIN.fill(WHITE)
+        WIN.fill((255, 255, 255))
         for line in range(1, self._size):
             pos_begin = (self._square_size*line, 0)
             pos_end = (self._square_size*line, self._resolution[0])
-            pygame.draw.line(self._surface, self._color_of_board, pos_begin, pos_end, WIDTHOFBOARD)
+            pygame.draw.line(self._surface, self._color_of_board, pos_begin, pos_end, settings['WIDTHOFBOARD'])
         for line in range(1, self._size):
             pos_begin = (0, self._square_size*line)
             pos_end = (self._resolution[1], self._square_size*line)
-            pygame.draw.line(self._surface, self._color_of_board, pos_begin, pos_end, WIDTHOFBOARD)
+            pygame.draw.line(self._surface, self._color_of_board, pos_begin, pos_end, settings['WIDTHOFBOARD'])
 
         if self._pawns_on_board:
             for pawn in self._pawns_on_board:
@@ -48,38 +60,38 @@ class Board():
 
         for player in self._players:
             string_to_print = f'The score of {player._name} is {player._score}'
-            txt = my_font.render(string_to_print, True, BLACK)
+            txt = my_font.render(string_to_print, True, self._color_of_board)
             self._surface.blit(txt, (self._board_size + 10, self._height_blit))
             self._height_blit += 30
         string_to_print = f"It's {self._players[turn]._name} move"
         self._height_blit += 30
-        txt = my_font.render(string_to_print, True, BLACK)
+        txt = my_font.render(string_to_print, True, self._color_of_board)
         self._surface.blit(txt, (self._board_size + 10, self._height_blit))
         self._height_blit += 90
         for pawn in self._players[turn]._pawns:
-            if pawn._size == multiplied_size:
-                new_coordinates = (self._board_size + 4*multiplied_size, self._height_blit)
+            if pawn._size == settings['MULTIPLIEDSIZE']:
+                new_coordinates = (self._board_size + 4*settings['MULTIPLIEDSIZE'], self._height_blit)
                 pawn.set_coordinates(new_coordinates)
                 self.draw_pawn_by_coords(pawn)
-            if pawn._size == 2*multiplied_size:
-                new_coordinates = (self._board_size + 8*multiplied_size, self._height_blit)
+            if pawn._size == 2*settings['MULTIPLIEDSIZE']:
+                new_coordinates = (self._board_size + 8*settings['MULTIPLIEDSIZE'], self._height_blit)
                 pawn.set_coordinates(new_coordinates)
                 self.draw_pawn_by_coords(pawn)
-            if pawn._size == 3*multiplied_size:
-                new_coordinates = (self._board_size + 14*multiplied_size, self._height_blit)
+            if pawn._size == 3*settings['MULTIPLIEDSIZE']:
+                new_coordinates = (self._board_size + 14*settings['MULTIPLIEDSIZE'], self._height_blit)
                 pawn.set_coordinates(new_coordinates)
                 self.draw_pawn_by_coords(pawn)
         if self._picked_pawn:
             string_to_print = f"The picked pawn is {self._picked_pawn._color}, size:{self._picked_pawn._size}"
             # to do change colors into a dictionary, then get the color name by key or value i dont rememebre
             self._height_blit += 90
-            txt = my_font.render(string_to_print, True, BLACK)
+            txt = my_font.render(string_to_print, True, self._color_of_board)
             self._surface.blit(txt, (self._board_size + 10, self._height_blit))
             self._height_blit -= 90
         else:
             string_to_print = "No picked pawn"
             self._height_blit += 90
-            txt = my_font.render(string_to_print, True, BLACK)
+            txt = my_font.render(string_to_print, True, self._color_of_board)
             self._surface.blit(txt, (self._board_size + 10, self._height_blit))
             self._height_blit -= 90
         pygame.display.update()
@@ -222,16 +234,16 @@ class Board():
                 self._picked_pawn = pawn
                 return pawn
         if coords[0] > self._size and self._height_blit-30 < coords[1] < self._height_blit+30:
-            if self._board_size < coords[0] < self._board_size + multiplied_size*6:
-                pawn = self.get_pawn_by_size(multiplied_size, turn)
+            if self._board_size < coords[0] < self._board_size + settings['MULTIPLIEDSIZE']*6:
+                pawn = self.get_pawn_by_size(settings['MULTIPLIEDSIZE'], turn)
                 self._picked_pawn = pawn
                 return pawn
-            elif self._board_size + multiplied_size*6 < coords[0] < self._board_size + multiplied_size*10:
-                pawn = self.get_pawn_by_size(multiplied_size*2, turn)
+            elif self._board_size + settings['MULTIPLIEDSIZE']*6 < coords[0] < self._board_size + settings['MULTIPLIEDSIZE']*10:
+                pawn = self.get_pawn_by_size(settings['MULTIPLIEDSIZE']*2, turn)
                 self._picked_pawn = pawn
                 return pawn
-            elif self._board_size + multiplied_size*11 < coords[0] < self._board_size + multiplied_size*18:
-                pawn = self.get_pawn_by_size(multiplied_size*3, turn)
+            elif self._board_size + settings['MULTIPLIEDSIZE']*11 < coords[0] < self._board_size + settings['MULTIPLIEDSIZE']*18:
+                pawn = self.get_pawn_by_size(settings['MULTIPLIEDSIZE']*3, turn)
                 self._picked_pawn = pawn
                 return pawn
         else:
@@ -254,7 +266,7 @@ class Player():
     def add_pawns(self, number_of_pawns_to_add):
         for size in range(1, 4):
             for pawn in range(number_of_pawns_to_add):
-                self._pawns.append(Pawn(size*multiplied_size, self._color, self))
+                self._pawns.append(Pawn(size*settings['MULTIPLIEDSIZE'], self._color, self))
 
 
 class Pawn():
@@ -276,21 +288,23 @@ class Pawn():
 
 
 def draw_window():
-    WIN.fill(WHITE)
+    WIN.fill((255, 255, 255))
     pygame.display.update()
 
 # pygame.transform.scale()
 
 
 def main():
+    colors, settings = load_and_unpack_settings_yaml(path_to_yaml)
+    WIN = pygame.display.set_mode(settings['RESOLUTION'])
+    pygame.display.set_caption('Gobblet Gobblers')
     draw_window()
-    # to do update window every click
     run = True
-    player_one = Player('Filip', DARKOCHID3)
-    player_two = Player('Najlepszy ziomek', BANANA)
+    player_one = Player('Filip', colors['DARKORCHID'])
+    player_two = Player('Najlepszy ziomek', colors['BANANA'])
     player_one.add_pawns(2)
     player_two.add_pawns(2)
-    my_board = Board(RESOLUTION, WIN, WHITE, BLACK, [player_one, player_two], 3)
+    my_board = Board(settings['RESOLUTION'], WIN, colors['WHITE'], colors['BLACK'], [player_one, player_two], 3)
     turn = 0
     picked_pawn_from_board = None
     picked_pawn_from_set = None
