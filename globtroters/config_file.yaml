@@ -1,0 +1,28 @@
+---
+ colors:
+   "BLACK": (0,0,0)
+   "WHITE": (255,255,255)
+   "RED": (255, 0, 0)
+   "BLUE": (0,0,255)
+   "YELLOW": (255,255,0)
+   "GREEN": (0,215,0)
+   "CYAN": (0,215,175)
+   "PURPLE": (135,0,255)
+   "MEDIUMPURPLE": (135,95,215)
+   "HOTPINK": (215,95,175)
+   "VIOLET": (255,255,255)
+   "WHITE": (255,255,255)
+   "DARKBLUE": (0,0,135)
+   "AQUA": (0,255,255)
+   "TURQOISE": (0,215,255)
+   "DARKORANGE": (215,95,0)
+   "TAN": (215,175,135)
+   "GOLD": (215,175,0)
+   "DEEPPINK2": (255,0,95)
+   "DEEPPINK": (255,0,135)
+   "MAGENTA": (255,0,255)
+   "BANANA" : (227, 207, 87)
+   "DARKORCHID" : (154, 50, 205)
+ WIDTHOFBOARD : 10
+ MULTIPLIEDSIZE : 24
+ RESOLUTION : (1100, 600)
