@@ -78,9 +78,12 @@ class Board():
                 pawn.set_coordinates(new_coordinates)
                 self.draw_pawn_by_coords(pawn)
         if self._picked_pawn:
-
-            string_to_print = f"The picked pawn is {self._picked_pawn._color}, size:{self._picked_pawn._size}"
-            # to do change colors into a dictionary, then get the color name by key or value i dont rememebre
+            for colorname, color in colors.items():
+                if self._picked_pawn._color == color:
+                    colornametp = colorname
+                    break
+            sizetp = self._picked_pawn._size // settings['MULTIPLIEDSIZE']
+            string_to_print = f"The picked pawn is {colornametp}, size:{sizetp}"
             self._height_blit += 90
             txt = my_font.render(string_to_print, True, self._color_of_board)
             self._surface.blit(txt, (self._board_size + 10, self._height_blit))
