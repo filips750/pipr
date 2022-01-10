@@ -14,15 +14,11 @@ def load_and_unpack_settings_yaml(path):
     settings['WIDTHOFBOARD'] = int(settings['WIDTHOFBOARD'])
     settings['MULTIPLIEDSIZE'] = int(settings['MULTIPLIEDSIZE'])
     settings['RESOLUTION'] = eval(settings['RESOLUTION'])
-
     return settings['colors'], settings
 
 
 path_to_yaml = 'globtroters/config_file.yaml'
-
 colors, settings = load_and_unpack_settings_yaml(path_to_yaml)
-WIN = pygame.display.set_mode(settings['RESOLUTION'])
-# (dictionary, stream=handle, allow_unicode=True)
 
 
 class Board():
@@ -40,7 +36,7 @@ class Board():
         self._picked_pawn = None
 
     def draw_a_board(self, turn=0):
-        WIN.fill((255, 255, 255))
+        self._surface.fill((self._color))
         for line in range(1, self._size):
             pos_begin = (self._square_size*line, 0)
             pos_end = (self._square_size*line, self._resolution[0])
@@ -82,6 +78,7 @@ class Board():
                 pawn.set_coordinates(new_coordinates)
                 self.draw_pawn_by_coords(pawn)
         if self._picked_pawn:
+
             string_to_print = f"The picked pawn is {self._picked_pawn._color}, size:{self._picked_pawn._size}"
             # to do change colors into a dictionary, then get the color name by key or value i dont rememebre
             self._height_blit += 90
@@ -216,12 +213,12 @@ class Board():
     def draw_pawn(self, pawn):
         x = (pawn._coordinates[0]*self._square_size)+self._square_size//2
         y = (pawn._coordinates[1]*self._square_size)+self._square_size//2
-        pygame.draw.circle(WIN, pawn._color, (x, y), pawn._size, pawn._size)
+        pygame.draw.circle(self._surface, pawn._color, (x, y), pawn._size, pawn._size)
 
     def draw_pawn_by_coords(self, pawn):
         x = pawn._coordinates[0]
         y = pawn._coordinates[1]
-        pygame.draw.circle(WIN, pawn._color, (x, y), pawn._size, pawn._size)
+        pygame.draw.circle(self._surface, pawn._color, (x, y), pawn._size, pawn._size)
 
     def pick_a_pawn(self, coords, turn):
         xnewpos = coords[0]//self._square_size
@@ -273,9 +270,9 @@ class Pawn():
     def __init__(self, size, color, owner, coordinates=None):
         self._size = size
         self._color = color
+        self._owner = owner
         if coordinates:
             self._coordinates = coordinates
-        self._owner = owner
 
     def size(self):
         return self._size
@@ -287,10 +284,6 @@ class Pawn():
         return self._coordinates
 
 
-def draw_window():
-    WIN.fill((255, 255, 255))
-    pygame.display.update()
-
 # pygame.transform.scale()
 
 
@@ -298,13 +291,12 @@ def main():
     colors, settings = load_and_unpack_settings_yaml(path_to_yaml)
     WIN = pygame.display.set_mode(settings['RESOLUTION'])
     pygame.display.set_caption('Gobblet Gobblers')
-    draw_window()
     run = True
     player_one = Player('Filip', colors['DARKORCHID'])
-    player_two = Player('Najlepszy ziomek', colors['BANANA'])
+    player_two = Player('Najlepszy ziomek', colors['MAGENTA'])
     player_one.add_pawns(2)
     player_two.add_pawns(2)
-    my_board = Board(settings['RESOLUTION'], WIN, colors['WHITE'], colors['BLACK'], [player_one, player_two], 3)
+    my_board = Board(settings['RESOLUTION'], WIN, colors['BLACK'], colors['WHITE'], [player_one, player_two], 3)
     turn = 0
     picked_pawn_from_board = None
     picked_pawn_from_set = None
