@@ -17,7 +17,7 @@ def load_and_unpack_settings_yaml(path):
     return settings['colors'], settings
 
 
-path_to_yaml = 'globtroters/config_file.yaml'
+path_to_yaml = 'config_file.yaml'
 colors, settings = load_and_unpack_settings_yaml(path_to_yaml)
 
 
@@ -48,7 +48,7 @@ class Board():
 
         if self._pawns_on_board:
             for pawn in self._pawns_on_board:
-                self.draw_pawn(pawn)
+                self.draw_pawn(pawn, True)
         self._height_blit = 0
 
         pygame.font.init()
@@ -68,15 +68,15 @@ class Board():
             if pawn._size == settings['MULTIPLIEDSIZE']:
                 new_coordinates = (self._board_size + 4*settings['MULTIPLIEDSIZE'], self._height_blit)
                 pawn.set_coordinates(new_coordinates)
-                self.draw_pawn_by_coords(pawn)
+                self.draw_pawn(pawn, False)
             if pawn._size == 2*settings['MULTIPLIEDSIZE']:
                 new_coordinates = (self._board_size + 8*settings['MULTIPLIEDSIZE'], self._height_blit)
                 pawn.set_coordinates(new_coordinates)
-                self.draw_pawn_by_coords(pawn)
+                self.draw_pawn(pawn, False)
             if pawn._size == 3*settings['MULTIPLIEDSIZE']:
                 new_coordinates = (self._board_size + 14*settings['MULTIPLIEDSIZE'], self._height_blit)
                 pawn.set_coordinates(new_coordinates)
-                self.draw_pawn_by_coords(pawn)
+                self.draw_pawn(pawn, False)
         if self._picked_pawn:
             for colorname, color in colors.items():
                 if self._picked_pawn._color == color:
@@ -187,9 +187,7 @@ class Board():
 
     def compare_size_of_pawns(self, pawn_to_add, new_coordinates):
         pawn = self.get_biggest_pawn_by_coords(new_coordinates)
-        if pawn is None:
-            return True
-        if pawn_to_add._size > pawn._size:
+        if pawn is None or pawn_to_add._size > pawn._size:
             return True
         else:
             return False
@@ -213,14 +211,13 @@ class Board():
             if max_size == pawn._size:
                 return pawn
 
-    def draw_pawn(self, pawn):
-        x = (pawn._coordinates[0]*self._square_size)+self._square_size//2
-        y = (pawn._coordinates[1]*self._square_size)+self._square_size//2
-        pygame.draw.circle(self._surface, pawn._color, (x, y), pawn._size, pawn._size)
-
-    def draw_pawn_by_coords(self, pawn):
-        x = pawn._coordinates[0]
-        y = pawn._coordinates[1]
+    def draw_pawn(self, pawn, on_board):
+        if on_board:
+            x = (pawn._coordinates[0]*self._square_size)+self._square_size//2
+            y = (pawn._coordinates[1]*self._square_size)+self._square_size//2
+        else:
+            x = pawn._coordinates[0]
+            y = pawn._coordinates[1]
         pygame.draw.circle(self._surface, pawn._color, (x, y), pawn._size, pawn._size)
 
     def pick_a_pawn(self, coords, turn):
@@ -233,7 +230,7 @@ class Board():
                 self._pawns_on_board.remove(pawn)
                 self._picked_pawn = pawn
                 return pawn
-        if coords[0] > self._size and self._height_blit-30 < coords[1] < self._height_blit+30:
+        if self._height_blit-30 < coords[1] < self._height_blit+30:
             if self._board_size < coords[0] < self._board_size + settings['MULTIPLIEDSIZE']*6:
                 pawn = self.get_pawn_by_size(settings['MULTIPLIEDSIZE'], turn)
                 self._picked_pawn = pawn
@@ -247,6 +244,7 @@ class Board():
                 self._picked_pawn = pawn
                 return pawn
         else:
+            self._picked_pawn = None
             return None
 
     def remove_all_pawns(self):
@@ -296,7 +294,7 @@ def main():
     pygame.display.set_caption('Gobblet Gobblers')
     run = True
     player_one = Player('Filip', colors['DARKORCHID'])
-    player_two = Player('Najlepszy ziomek', colors['MAGENTA'])
+    player_two = Player('Najlepszy ziomek', colors['TAN'])
     player_one.add_pawns(2)
     player_two.add_pawns(2)
     my_board = Board(settings['RESOLUTION'], WIN, colors['BLACK'], colors['WHITE'], [player_one, player_two], 3)
