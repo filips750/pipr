@@ -1,13 +1,11 @@
 import pygame
 from main import Board, Player, load_and_unpack_settings_yaml
 
-
-path_to_yaml = 'globtroters/config_file.yaml'
-colors, settings = load_and_unpack_settings_yaml(path_to_yaml)
-WIN = pygame.display.set_mode(settings['RESOLUTION'])
+colors, settings = load_and_unpack_settings_yaml
 
 
 def test_Board_init():
+    WIN = pygame.display.set_mode(settings['RESOLUTION'])
     player_one = Player('Filip', colors['DARKORCHID'])
     player_two = Player('Janusz', colors['BANANA'])
     player_one.add_pawns(3)
@@ -24,6 +22,7 @@ def test_Board_init():
 
 
 def test_get_biggest_pawn_by_coords():
+    WIN = pygame.display.set_mode(settings['RESOLUTION'])
     player_one = Player('Filip', colors['DARKORCHID'])
     player_one.add_pawns(3)
     my_board = Board(settings['RESOLUTION'], WIN, colors['WHITE'], colors['BLACK'], [player_one])
@@ -41,6 +40,7 @@ def test_get_biggest_pawn_by_coords():
 
 
 def test_check_if_win_after_putting_a_pawn_over():
+    WIN = pygame.display.set_mode(settings['RESOLUTION'])
     player_one = Player('Filip', colors['DARKORCHID'])
     player_two = Player('Janusz', colors['BANANA'])
     player_one.add_pawns(3)
@@ -54,6 +54,7 @@ def test_check_if_win_after_putting_a_pawn_over():
 
 
 def test_check_if_win():
+    WIN = pygame.display.set_mode(settings['RESOLUTION'])
     player_one = Player('Filip', colors['DARKORCHID'])
     player_two = Player('Janusz', colors['BANANA'])
     player_one.add_pawns(3)
@@ -66,6 +67,7 @@ def test_check_if_win():
 
 
 def test_pickmove_a_pawn():
+    WIN = pygame.display.set_mode(settings['RESOLUTION'])
     player_one = Player('Filip', colors['DARKORCHID'])
     player_one.add_pawns(3)
     my_board = Board(settings['RESOLUTION'], WIN, colors['WHITE'], colors['BLACK'], [player_one])
