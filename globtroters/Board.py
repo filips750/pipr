@@ -17,9 +17,9 @@ class Board():
         self._board_size = min(resolution[0], resolution[1])
         self._square_size = self._board_size//self._size
         self._height_blit = 5
-        self._picked_pawn = None
+        self._turn = 0
 
-    def draw_a_board(self, turn=0):
+    def draw_a_board(self):
         self._surface.fill((self._color))
         for line in range(1, self._size):
             pos_begin = (self._square_size*line, 0)
@@ -43,12 +43,12 @@ class Board():
             txt = my_font.render(string_to_print, True, self._color_of_board)
             self._surface.blit(txt, (self._board_size + 10, self._height_blit))
             self._height_blit += 30
-        string_to_print = f"It's {self._players[turn]._name} move"
+        string_to_print = f"It's {self._players[self._turn]._name} move"
         self._height_blit += 30
         txt = my_font.render(string_to_print, True, self._color_of_board)
         self._surface.blit(txt, (self._board_size + 10, self._height_blit))
         self._height_blit += 90
-        for pawn in self._players[turn]._pawns:
+        for pawn in self._players[self._turn]._pawns:
             if pawn._size == settings['MULTIPLIEDSIZE']:
                 new_coordinates = (self._board_size + 4*settings['MULTIPLIEDSIZE'], self._height_blit)
                 pawn.set_coordinates(new_coordinates)
@@ -61,12 +61,12 @@ class Board():
                 new_coordinates = (self._board_size + 14*settings['MULTIPLIEDSIZE'], self._height_blit)
                 pawn.set_coordinates(new_coordinates)
                 self.draw_pawn(pawn, False)
-        if self._picked_pawn:
+        if self._players[self._turn]._picked_pawn:
             for colorname, color in colors.items():
-                if self._picked_pawn._color == color:
+                if self._players[self._turn]._picked_pawn._color == color:
                     colornametp = colorname
                     break
-            sizetp = self._picked_pawn._size // settings['MULTIPLIEDSIZE']
+            sizetp = self._players[self._turn]._picked_pawn._size // settings['MULTIPLIEDSIZE']
             string_to_print = f"The picked pawn is {colornametp}, size:{sizetp}"
             self._height_blit += 90
             txt = my_font.render(string_to_print, True, self._color_of_board)
@@ -155,16 +155,19 @@ class Board():
             if self.compare_size_of_pawns(pawn_to_move, new_coordinates):
                 pawn_to_move.set_coordinates(new_coordinates)
                 self._pawns_on_board.append(pawn_to_move)
-                self._picked_pawn = None
+                self._players[self._turn]._picked_pawn = None
+                self.add_turn()
                 return True
 
-    def add_a_pawn(self, player, pawn_to_add, new_coordinates):
+    def add_a_pawn(self, pawn_to_add, new_coordinates):
         if pawn_to_add and new_coordinates[0] < self._size:
             if self.compare_size_of_pawns(pawn_to_add, new_coordinates):
                 pawn_to_add.set_coordinates(new_coordinates)
                 self._pawns_on_board.append(pawn_to_add)
-                player._pawns.remove(pawn_to_add)
-                self._picked_pawn = None
+                self._players[self._turn]._pawns.remove(pawn_to_add)
+                self._players[self._turn]._picked_pawn = None
+                self.add_turn()
+
                 return True
 
     def compare_size_of_pawns(self, pawn_to_add, new_coordinates):
@@ -174,8 +177,8 @@ class Board():
         else:
             return False
 
-    def get_pawn_by_size(self, size, turn):
-        for pawn in self._players[turn]._pawns:
+    def get_pawn_by_size(self, size):
+        for pawn in self._players[self._turn]._pawns:
             if pawn._size == size:
                 return pawn
         else:
@@ -202,7 +205,7 @@ class Board():
             y = pawn._coordinates[1]
         pygame.draw.circle(self._surface, pawn._color, (x, y), pawn._size, pawn._size)
 
-    def pick_a_pawn(self, coords, turn):
+    def pick_a_pawn(self, coords):
         xnewpos = coords[0]//self._square_size
         ynewpos = coords[1]//self._square_size
         newpos = (xnewpos, ynewpos)
@@ -210,26 +213,30 @@ class Board():
             pawn = self.get_biggest_pawn_by_coords(newpos)
             if pawn:
                 self._pawns_on_board.remove(pawn)
-                self._picked_pawn = pawn
+                self._players[self._turn]._picked_pawn = pawn
                 return pawn
         if self._height_blit-30 < coords[1] < self._height_blit+30:
             if self._board_size < coords[0] < self._board_size + settings['MULTIPLIEDSIZE']*6:
-                pawn = self.get_pawn_by_size(settings['MULTIPLIEDSIZE'], turn)
-                self._picked_pawn = pawn
+                pawn = self.get_pawn_by_size(settings['MULTIPLIEDSIZE'])
+                self._players[self._turn]._picked_pawn = pawn
                 return pawn
             elif self._board_size + settings['MULTIPLIEDSIZE']*6 < coords[0] < self._board_size + settings['MULTIPLIEDSIZE']*10:
-                pawn = self.get_pawn_by_size(settings['MULTIPLIEDSIZE']*2, turn)
-                self._picked_pawn = pawn
+                pawn = self.get_pawn_by_size(settings['MULTIPLIEDSIZE']*2)
+                self._players[self._turn]._picked_pawn = pawn
                 return pawn
             elif self._board_size + settings['MULTIPLIEDSIZE']*11 < coords[0] < self._board_size + settings['MULTIPLIEDSIZE']*18:
-                pawn = self.get_pawn_by_size(settings['MULTIPLIEDSIZE']*3, turn)
-                self._picked_pawn = pawn
+                pawn = self.get_pawn_by_size(settings['MULTIPLIEDSIZE']*3)
+                self._players[self._turn]._picked_pawn = pawn
                 return pawn
         else:
-            self._picked_pawn = None
+            self._players[self._turn]._picked_pawn = None
             return None
 
     def remove_all_pawns(self):
         self._pawns_on_board.clear()
         for player in self._players:
             player._pawns.clear()
+
+    def add_turn(self):
+        self._turn += 1
+        self._turn = self._turn % len(self._players)

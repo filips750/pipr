@@ -17,7 +17,6 @@ def main():
     player_one.add_pawns(2)
     player_two.add_pawns(2)
     my_board = Board(settings['RESOLUTION'], WIN, colors['BLACK'], colors['WHITE'], [player_one, player_two], 3)
-    turn = 0
     picked_pawn_from_board = None
     picked_pawn_from_set = None
     while run:
@@ -30,19 +29,17 @@ def main():
                 ynewpos = mousepos[1]//my_board._square_size
                 newpos = (xnewpos, ynewpos)
                 if picked_pawn_from_set:
-                    if my_board.add_a_pawn(my_board._players[turn], picked_pawn_from_set, newpos):
-                        turn += 1
+                    if my_board.add_a_pawn(picked_pawn_from_set, newpos):
                         picked_pawn_from_set = None
                         continue
                 if picked_pawn_from_board:
                     if my_board.move_a_pawn(picked_pawn_from_board, newpos):
-                        turn += 1
                         picked_pawn_from_board = None
                         continue
                 if mousepos[0] < my_board._board_size and not (picked_pawn_from_board or picked_pawn_from_set):
-                    picked_pawn_from_board = my_board.pick_a_pawn(mousepos, turn)
+                    picked_pawn_from_board = my_board.pick_a_pawn(mousepos)
                 if mousepos[0] > my_board._board_size and not picked_pawn_from_board:
-                    picked_pawn_from_set = my_board.pick_a_pawn(mousepos, turn)
+                    picked_pawn_from_set = my_board.pick_a_pawn(mousepos)
             winner = my_board.check_if_won(3)
             if winner:
                 winner._score += 1
@@ -50,8 +47,7 @@ def main():
                 winner = None
                 player_one.add_pawns(3)
                 player_two.add_pawns(3)
-            turn = turn % len(my_board._players)
-            my_board.draw_a_board(turn)
+            my_board.draw_a_board()
         pygame.display.update()
     pygame.quit()
 
