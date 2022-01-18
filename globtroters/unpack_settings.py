@@ -10,7 +10,7 @@ def load_and_unpack_settings_yaml():
     except yaml.YAMLError as exc:
         print(exc)
     for color in settings['colors']:
-        settings['colors'][color] = eval(settings['colors'][color])
+        color[color] = eval(color[color])
     settings['WIDTHOFBOARD'] = int(settings['WIDTHOFBOARD'])
     settings['MULTIPLIEDSIZE'] = int(settings['MULTIPLIEDSIZE'])
     settings['RESOLUTION'] = eval(settings['RESOLUTION'])
