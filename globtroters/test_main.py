@@ -1,11 +1,7 @@
 import pygame
-from classes import (
-    Board,
-    Player,
-    load_and_unpack_settings_yaml
-)
-
-
+from Board import Board
+from Player import Player
+from unpack_settings import load_and_unpack_settings_yaml
 
 
 def test_Board_init():
@@ -85,3 +81,16 @@ def test_pickmove_a_pawn():
     picked_pawn = my_board.pick_a_pawn((450, 150), 0)
     my_board.move_a_pawn(picked_pawn, (0, 2))
     assert my_board._pawns_on_board[0]._coordinates == (0, 2)
+
+
+def test_remove_all_pawns():
+    colors, settings = load_and_unpack_settings_yaml()
+    WIN = pygame.display.set_mode(settings['RESOLUTION'])
+    player_one = Player('Filip', colors['DARKORCHID'])
+    player_one.add_pawns(3)
+    my_board = Board(settings['RESOLUTION'], WIN, colors['WHITE'], colors['BLACK'], [player_one])
+    my_board.add_a_pawn(player_one, player_one._pawns[0], (2, 0))
+    my_board.add_a_pawn(player_one, player_one._pawns[1], (1, 0))
+    my_board.add_a_pawn(player_one, player_one._pawns[2], (2, 1))
+    my_board.remove_all_pawns()
+    my_board._pawns_on_board is None

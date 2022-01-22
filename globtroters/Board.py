@@ -23,10 +23,7 @@ class Board():
         for line in range(1, self._size):
             pos_begin = (self._square_size*line, 0)
             pos_end = (self._square_size*line, self._resolution[0])
-            pygame.draw.line(self._surface,
-            self._color_of_board,
-            pos_begin, pos_end,
-            self.settings['WIDTHOFBOARD'])
+            pygame.draw.line(self._surface, self._color_of_board, pos_begin, pos_end, self.settings['WIDTHOFBOARD'])
         for line in range(1, self._size):
             pos_begin = (0, self._square_size*line)
             pos_end = (self._resolution[1], self._square_size*line)
@@ -65,7 +62,7 @@ class Board():
                 self.draw_pawn(pawn, False)
         if self._picked_pawn:
             for colorname, color in self.colors.items():
-                if self._picked_pawn._color == color:
+                if self._picked_pawn._color == colorname:
                     colornametp = colorname
                     break
             sizetp = self._picked_pawn._size // self.settings['MULTIPLIEDSIZE']
@@ -230,6 +227,11 @@ class Board():
         else:
             self._picked_pawn = None
             return None
+
+    def add_pawns_to_players(self, number_of_pawns):
+        for player in self._players:
+            player.add_pawns(number_of_pawns)
+
 
     def remove_all_pawns(self):
         self._pawns_on_board.clear()
