@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import yaml
 
 
@@ -16,24 +15,3 @@ def load_and_unpack_settings_yaml():
     settings['MULTIPLIEDSIZE'] = int(settings['MULTIPLIEDSIZE'])
     settings['RESOLUTION'] = eval(settings['RESOLUTION'])
     return settings['colors'], settings
-
-load_and_unpack_settings_yaml()
-=======
-import yaml
-
-
-def load_and_unpack_settings_yaml():
-    path = 'pipr\globtroters\config_file.yaml'
-    settings = {}
-    try:
-        with open(path, 'r') as handle:
-            settings = yaml.safe_load(handle)
-    except yaml.YAMLError as exc:
-        print(exc)
-    for color in settings['colors']:
-        color[color] = eval(color[color])
-    settings['WIDTHOFBOARD'] = int(settings['WIDTHOFBOARD'])
-    settings['MULTIPLIEDSIZE'] = int(settings['MULTIPLIEDSIZE'])
-    settings['RESOLUTION'] = eval(settings['RESOLUTION'])
-    return settings['colors'], settings
->>>>>>> 00b0b6f08f4517c11341a0f47b3a3f153e7e240c
