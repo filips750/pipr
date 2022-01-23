@@ -1,7 +1,7 @@
 import pygame
-from Board import Board
-from Player import Player
 from unpack_settings import load_and_unpack_settings_yaml
+from Player import Player
+from Board import Board
 
 
 def test_Board_init():
@@ -33,12 +33,12 @@ def test_get_biggest_pawn_by_coords():
     assert my_board._pawns_on_board[0]._coordinates == (2, 0)
     assert len(my_board._pawns_on_board) == 1
     assert len(player_one._pawns) == 8
-    my_board.add_a_pawn(player_one, player_one._pawns[2], (2, 0))
+    my_board.add_a_pawn(player_one, player_one._pawns[0], (2, 0))
     assert my_board.get_biggest_pawn_by_coords((2, 0))._size == settings['MULTIPLIEDSIZE']
     picked_pawn = my_board.pick_a_pawn((450, 100), 0)
     my_board.move_a_pawn(picked_pawn, (0, 2))
-    assert my_board.get_biggest_pawn_by_coords((0, 2))._size == 2*['MULTIPLIEDSIZE']
-    assert my_board._pawns_on_board[0]._coordinates == (2, 0)
+    assert my_board.get_biggest_pawn_by_coords((0, 2))._size == settings['MULTIPLIEDSIZE']
+    assert my_board._pawns_on_board[0]._coordinates == (0, 2)
 
 
 def test_check_if_win_after_putting_a_pawn_over():
@@ -81,16 +81,3 @@ def test_pickmove_a_pawn():
     picked_pawn = my_board.pick_a_pawn((450, 150), 0)
     my_board.move_a_pawn(picked_pawn, (0, 2))
     assert my_board._pawns_on_board[0]._coordinates == (0, 2)
-
-
-def test_remove_all_pawns():
-    colors, settings = load_and_unpack_settings_yaml()
-    WIN = pygame.display.set_mode(settings['RESOLUTION'])
-    player_one = Player('Filip', colors['DARKORCHID'])
-    player_one.add_pawns(3)
-    my_board = Board(settings['RESOLUTION'], WIN, colors['WHITE'], colors['BLACK'], [player_one])
-    my_board.add_a_pawn(player_one, player_one._pawns[0], (2, 0))
-    my_board.add_a_pawn(player_one, player_one._pawns[1], (1, 0))
-    my_board.add_a_pawn(player_one, player_one._pawns[2], (2, 1))
-    my_board.remove_all_pawns()
-    my_board._pawns_on_board is None

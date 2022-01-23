@@ -232,7 +232,6 @@ class Board():
         for player in self._players:
             player.add_pawns(number_of_pawns)
 
-
     def remove_all_pawns(self):
         self._pawns_on_board.clear()
         for player in self._players:

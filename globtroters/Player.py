@@ -14,4 +14,3 @@ class Player():
         for size in range(1, 4):
             for pawn in range(number_of_pawns_to_add):
                 self._pawns.append(Pawn(size*self.setting['MULTIPLIEDSIZE'], self._color, self))
-

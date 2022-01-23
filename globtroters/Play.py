@@ -1,9 +1,7 @@
 import pygame
 from unpack_settings import load_and_unpack_settings_yaml
-import pygame
 from Player import Player
 from Board import Board
-from UI import ui
 
 
 def play_game(list_of_players):

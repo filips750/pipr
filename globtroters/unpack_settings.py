@@ -2,7 +2,8 @@ import yaml
 
 
 def load_and_unpack_settings_yaml():
-    path = 'globtroters/config_file.yaml'
+    # globtroters/
+    path = 'globtroters/settings/config_file.yaml'
     settings = {}
     try:
         with open(path, 'r') as handle:
