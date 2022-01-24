@@ -2,15 +2,32 @@ import pygame
 import pygame_gui
 from pygame_textinput import TextInputVisualizer, TextInputManager
 from unpack_settings import load_and_unpack_settings_yaml
+from exceptions import (
+    NameCannotBeEmpty,
+    WrongColorName
+)
 
 colors, settings = load_and_unpack_settings_yaml()
 
 
+def check_if_color(color_to_check):
+    """
+    Checks if color is correct
+    """
+    for color in colors:
+        if color == color_to_check:
+            return True
+    return False
+
+
 def save_from_input(WIN, color_or_name, player_number):
-    my_font = pygame.font.SysFont(settings['FONT'], 20)
+    """
+    Prints prompt and gets user input from text field.
+    """
+    my_font = pygame.font.SysFont(settings['FONT'], settings['FONTSIZE'])
     string_to_print = f"Player {player_number+1} pick a {'name' if color_or_name%2==0  else 'color'}"
     txt = my_font.render(string_to_print, True, colors['BLACK'])
-    manager1 = TextInputManager(validator=lambda input: len(input) <= 10)
+    manager1 = TextInputManager(validator=lambda input: len(input) <= 16)
     textinput = TextInputVisualizer(manager=manager1, font_object=my_font)
     events = pygame.event.get()
     run_2nd = True
@@ -19,7 +36,7 @@ def save_from_input(WIN, color_or_name, player_number):
         WIN.fill(colors['WHITE'])
         events = pygame.event.get()
         WIN.blit(txt, (10, 10))
-        WIN.blit(textinput.surface, (10, 40))
+        WIN.blit(textinput.surface, (10, settings['FONTSIZE']+10))
         textinput.update(events)
         for event in events:
             if event.type == pygame.QUIT:
@@ -30,6 +47,11 @@ def save_from_input(WIN, color_or_name, player_number):
 
 
 def ui():
+    """
+    Makes three buttons which give information about number of players.
+    After pressing that button calls save_from_input function,
+    until all players data are entered.
+    """
     player_number = 0
     players_number = None
     players_list = []
@@ -84,7 +106,10 @@ def ui():
                     result = save_from_input(WIN, color_or_name, player_number)
                     if result:
                         value, color_or_name = result
-                        my_list.append(value)
+                        if not value:
+                            raise NameCannotBeEmpty()
+                        else:
+                            my_list.append(value)
                     else:
                         break_all = True
                         break
@@ -92,8 +117,10 @@ def ui():
                     result = save_from_input(WIN, color_or_name, player_number)
                     if result:
                         value, color_or_name = result
-                        my_list.append(value)
-
+                        if not check_if_color(value.upper()):
+                            raise WrongColorName()
+                        else:
+                            my_list.append(value)
                     else:
                         break_all = True
                         break
