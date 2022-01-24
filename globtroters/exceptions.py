@@ -21,8 +21,3 @@ class ConfigFileError(Exception):
 class MissingArgumentsConfigFile(Exception):
     def __init__(self) -> None:
         print('One or more arguments in config file are missing. Please check if all arguments are correctly')
-
-
-class ConfigResolutionError(Exception):
-    def __init__(self) -> None:
-        pass
